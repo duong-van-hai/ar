@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>KIỂM TRA CÔNG NGHỆ 10</title>
+    <title>KIỂM TRA CÔNG NGHỆ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: sans-serif; background: #f0f2f5; line-height: 1.6; padding: 10px; }
@@ -24,14 +24,13 @@
 <body>
 
 <div class="container" id="main-box">
-    <h1>KIỂM TRA CÔNG NGHỆ 10</h1>
+    <h1>KIỂM TRA CÔNG NGHỆ</h1>
     
     <div class="input-group">
         <input type="text" id="student-name" placeholder="Nhập họ và tên của em...">
     </div>
 
-    <div id="quiz-container">
-        </div>
+    <div id="quiz-container"></div>
 
     <button onclick="submitQuiz()">NỘP BÀI</button>
     
@@ -39,27 +38,59 @@
 </div>
 
 <script>
-    // Dữ liệu 12 câu hỏi từ file của bạn
-    const questions = [
-        { q: "Câu 1: Công nghệ là gì?", options: ["Hệ thống tri thức khoa học", "Ứng dụng nguyên lí thiết kế", "Giải pháp, quy trình, bí quyết kĩ thuật", "Thúc đẩy khoa học"], a: "Giải pháp, quy trình, bí quyết kĩ thuật" },
-        { q: "Câu 2: Cấu trúc của hệ thống kĩ thuật gồm?", options: ["Đầu vào, đầu ra, hồi tiếp", "Đầu vào, đầu ra, xử lí", "Đầu vào, đầu ra, điều khiển", "Đầu vào, đầu ra, lưu trữ"], a: "Đầu vào, đầu ra, xử lí" },
-        { q: "Câu 3: Ngành công nghệ biến đổi điện năng thành cơ năng?", options: ["Điện – điện tử", "Điện – cơ", "Điều khiển tự động hóa", "Điện – quang"], a: "Điện – cơ" },
-        { q: "Câu 4: Công nghệ mô phỏng trí tuệ con người?", options: ["Trí tuệ nhân tạo (AI)", "Internet vạn vật (IoT)", "Robot thông minh", "In 3D"], a: "Trí tuệ nhân tạo (AI)" },
-        { q: "Câu 5: Công nghệ nào dùng quy trình đắp lớp vật liệu?", options: ["Luyện kim", "Gia công áp lực", "Nano", "In 3D"], a: "In 3D" },
-        { q: "Câu 6: Sản phẩm đặc trưng Cách mạng 4.0?", options: ["Máy tính", "Robot thông minh", "Máy dệt hơi nước", "Bóng đèn"], a: "Robot thông minh" },
-        { q: "Câu 7: Ngành nghề nào thuộc ngành cơ khí?", options: ["Lắp đặt điện", "Sửa chữa, cơ khí chế tạo", "Hệ thống điện", "Vận hành điện gió"], a: "Sửa chữa, cơ khí chế tạo" },
-        { q: "Câu 8: Nghề nghiệp có xu hướng tăng?", options: ["Công nghiệp, lắp ráp, vận hành", "Nông nghiệp, ngư nghiệp", "Thủ công mỹ nghệ", "Sản xuất truyền thống"], a: "Công nghiệp, lắp ráp, vận hành" },
-        { q: "Câu 9: Có bao nhiêu khổ giấy chính?", options: ["3", "4", "5", "7"], a: "5" },
-        { q: "Câu 10: Đường gióng kích thước vẽ bằng nét gì?", options: ["Liền mảnh", "Đứt mảnh", "Liền đậm", "Lượn sóng"], a: "Liền mảnh" },
-        { q: "Câu 11: Hình cắt toàn bộ dùng để biểu diễn gì?", options: ["Vật thể đối xứng", "Cấu tạo bên trong", "Cấu tạo bên ngoài", "Mặt cắt chập"], a: "Cấu tạo bên trong" },
-        { q: "Câu 12: Hình chiếu trục đo thường dùng là?", options: ["Xiên góc cân", "Vuông góc đều", "Cả 2 loại trên", "Hình chiếu đứng"], a: "Cả 2 loại trên" }
+    [cite_start]// Ngân hàng dữ liệu 36 câu hỏi dựa trên đề gốc [cite: 1, 43]
+    const allQuestions = [
+        { q: "Công nghệ là gì?", options: ["Hệ thống tri thức khoa học", "Ứng dụng nguyên lí thiết kế", "Giải pháp, quy trình, bí quyết kĩ thuật", "Thúc đẩy khoa học"], a: "Giải pháp, quy trình, bí quyết kĩ thuật" },
+        { q: "Cấu trúc của hệ thống kĩ thuật gồm?", options: ["Đầu vào, đầu ra, hồi tiếp", "Đầu vào, đầu ra, xử lí", "Đầu vào, đầu ra, điều khiển", "Đầu vào, đầu ra, lưu trữ"], a: "Đầu vào, đầu ra, xử lí" },
+        { q: "Ngành công nghệ biến đổi điện năng thành cơ năng?", options: ["Điện – điện tử", "Điện – cơ", "Điều khiển tự động hóa", "Điện – quang"], a: "Điện – cơ" },
+        { q: "Công nghệ mô phỏng trí tuệ con người?", options: ["Trí tuệ nhân tạo (AI)", "Internet vạn vật (IoT)", "Robot thông minh", "In 3D"], a: "Trí tuệ nhân tạo (AI)" },
+        { q: "Công nghệ nào dùng quy trình đắp lớp vật liệu?", options: ["Luyện kim", "Gia công áp lực", "Nano", "In 3D"], a: "In 3D" },
+        { q: "Sản phẩm đặc trưng Cách mạng 4.0?", options: ["Máy tính", "Robot thông minh", "Máy dệt hơi nước", "Bóng đèn"], a: "Robot thông minh" },
+        { q: "Ngành nghề nào thuộc ngành cơ khí?", options: ["Lắp đặt điện", "Sửa chữa, cơ khí chế tạo", "Hệ thống điện", "Vận hành điện gió"], a: "Sửa chữa, cơ khí chế tạo" },
+        { q: "Nghề nghiệp trong lĩnh vực nào có xu hướng tăng?", options: ["Công nghiệp, lắp ráp, vận hành", "Nông nghiệp, ngư nghiệp", "Thủ công mỹ nghệ", "Sản xuất truyền thống"], a: "Công nghiệp, lắp ráp, vận hành" },
+        { q: "Có bao nhiêu khổ giấy chính theo TCVN 7285:2003?", options: ["3", "4", "5", "7"], a: "5" },
+        { q: "Đường gióng kích thước vẽ bằng nét gì?", options: ["Liền mảnh", "Đứt mảnh", "Liền đậm", "Lượn sóng"], a: "Liền mảnh" },
+        { q: "Hình cắt toàn bộ dùng để biểu diễn cấu tạo nào?", options: ["Vật thể đối xứng", "Cấu tạo bên trong", "Cấu tạo bên ngoài", "Mặt cắt chập"], a: "Cấu tạo bên trong" },
+        { q: "Hình chiếu trục đo thường dùng là?", options: ["Xiên góc cân", "Vuông góc đều", "Cả 2 loại trên", "Hình chiếu đứng"], a: "Cả 2 loại trên" },
+        { q: "Cơ khí chế tạo đóng vai trò gì trong giao thông vận tải?", options: ["Máy chụp MRI", "Hệ thống tưới tự động", "Động cơ ô tô, xe máy", "Máy xay xát lúa gạo"], a: "Động cơ ô tô, xe máy" },
+        { q: "Ai trực tiếp lắp đặt động cơ vào khung xe ô tô?", options: ["Công nhân lắp ráp cơ khí", "Giám đốc nhà máy", "Kỹ sư thiết kế", "Nhân viên bảo vệ"], a: "Công nhân lắp ráp cơ khí" },
+        { q: "Tính chịu ăn mòn là tính chất gì của vật liệu?", options: ["Tính chất vật lý", "Tính chất hóa học", "Tính chất cơ học", "Tính chất công nghệ"], a: "Tính chất hóa học" },
+        { q: "Khả năng chống lại biến dạng dẻo hoặc phá hủy gọi là?", options: ["Tính dẫn nhiệt", "Tính đúc", "Độ bền", "Khối lượng riêng"], a: "Độ bền" },
+        { q: "Vật liệu ghi nhớ được hình dạng ban đầu là?", options: ["Vật liệu nano", "Hợp kim nhớ hình", "Vật liệu biến thiên", "Vật liệu kim loại"], a: "Hợp kim nhớ hình" },
+        { q: "Phương pháp nào thuộc nhóm gia công cắt gọt (có phoi)?", options: ["Tiện", "Đúc", "Rèn", "Hàn"], a: "Tiện" },
+        { q: "Ưu điểm của chế tạo phôi bằng phương pháp hàn?", options: ["Dễ cong vênh", "Mối hàn kém bền", "Tiết kiệm kim loại", "Mối hàn hở"], a: "Tiết kiệm kim loại" },
+        { q: "Trên máy tiện, chi tiết nào dùng để gắn dao?", options: ["Mâm cặp", "Ụ động", "Bàn gá dao", "Hộp tốc độ"], a: "Bàn gá dao" },
+        { q: "Trình tự đúng của quá trình sản xuất cơ khí?", options: ["Phôi -> Gia công -> Xử lý -> Lắp ráp", "Gia công -> Phôi -> Kiểm tra -> Lắp ráp", "Lắp ráp -> Kiểm tra -> Đóng gói", "Gia công -> Kiểm tra -> Đóng gói"], a: "Phôi -> Gia công -> Xử lý -> Lắp ráp" },
+        { q: "Bước xử lý và bảo vệ bề mặt gồm hoạt động nào?", options: ["Tiện, phay, bào", "Đúc, rèn, dập", "Sơn, mạ, phủ hóa chất", "Lắp ráp bu lông"], a: "Sơn, mạ, phủ hóa chất" },
+        { q: "Robot công nghiệp là thiết bị tự động có khả năng gì?", options: ["Tự suy nghĩ", "Thực hiện theo chương trình lập sẵn", "Di chuyển tốc độ ánh sáng", "Tự sửa chữa khi hỏng"], a: "Thực hiện theo chương trình lập sẵn" },
+        { q: "Xếp thùng carton lên pallet bằng robot là khâu?", options: ["Gia công", "Lắp ráp", "Vận chuyển và xếp dỡ", "Kiểm tra"], a: "Vận chuyển và xếp dỡ" },
+        { q: "Năng lượng đã biến đổi là thành phần nào của hệ thống?", options: ["Đầu vào", "Đầu ra", "Bộ phận xử lý", "Hồi tiếp"], a: "Đầu ra" },
+        { q: "Kết nối thiết bị qua mạng để trao đổi dữ liệu là?", options: ["AI", "IoT", "Robot", "In 3D"], a: "IoT" },
+        { q: "Kích thước khổ giấy A4 là?", options: ["841x1189", "594x841", "420x594", "210x297"], a: "210x297" },
+        { q: "Tỉ lệ 1:2 là loại tỉ lệ?", options: ["Phóng to", "Thu nhỏ", "Nguyên hình", "Trung gian"], a: "Thu nhỏ" },
+        { q: "Nét liền đậm dùng để vẽ đường nào?", options: ["Đường bao thấy", "Đường bao khuất", "Đường tâm", "Đường gióng"], a: "Đường bao thấy" },
+        { q: "Tính chất công nghệ của vật liệu là?", options: ["Dẫn nhiệt", "Độ cứng", "Tính đúc, tính hàn", "Chống ăn mòn"], a: "Tính đúc, tính hàn" },
+        { q: "Gang có hàm lượng carbon như thế nào so với thép?", options: ["Thấp hơn", "Cao hơn", "Bằng nhau", "Không có carbon"], a: "Cao hơn" },
+        { q: "Lý do nhôm dùng nhiều trong hàng không?", options: ["Giá rẻ", "Chịu nhiệt tốt", "Nhẹ và bền khá cao", "Dễ nóng chảy"], a: "Nhẹ và bền khá cao" },
+        { q: "Rót kim loại lỏng vào khuôn là phương pháp?", options: ["Tiện", "Hàn", "Rèn", "Đúc"], a: "Đúc" },
+        { q: "Rèn và dập thuộc nhóm công nghệ nào?", options: ["Gia công cắt gọt", "Gia công áp lực", "Gia công đúc", "Gia công hàn"], a: "Gia công áp lực" },
+        { q: "Chuyển động chính khi tiện là?", options: ["Quay tròn của phôi", "Tịnh tiến của dao", "Quay tròn của dao", "Lên xuống bàn máy"], a: "Quay tròn của phôi" },
+        { q: "Máy hơi nước là sản phẩm của cách mạng công nghiệp?", options: ["Lần 1", "Lần 2", "Lần 3", "Lần 4"], a: "Lần 1" }
     ];
 
-    // Hiển thị câu hỏi ngay khi vào trang
+    // Hàm chọn ngẫu nhiên 20 câu hỏi
+    function getRandomQuestions(arr, n) {
+        let shuffled = arr.sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, n);
+    }
+
+    const questions = getRandomQuestions(allQuestions, 20);
+
+    // Hiển thị câu hỏi
     const container = document.getElementById('quiz-container');
     questions.forEach((item, index) => {
         let html = `<div class="quiz-item">
-            <div class="question">${item.q}</div>`;
+            <div class="question">Câu ${index + 1}: ${item.q}</div>`;
         item.options.forEach(opt => {
             html += `<label><input type="radio" name="q${index}" value="${opt}"> ${opt}</label>`;
         });
@@ -84,7 +115,6 @@
 
         const finalScore = (score / questions.length * 10).toFixed(1);
         
-        // Hiện kết quả
         document.getElementById('quiz-container').style.display = 'none';
         document.querySelector('button').style.display = 'none';
         document.querySelector('.input-group').style.display = 'none';
@@ -96,7 +126,7 @@
             <div class="score">${finalScore} ĐIỂM</div>
             <p>Số câu đúng: ${score}/${questions.length}</p>
             <p>Chụp ảnh màn hình này để gửi cho giáo viên.</p>
-            <button onclick="location.reload()" style="background:#6c757d">LÀM LẠI</button>
+            <button onclick="location.reload()" style="background:#6c757d">LÀM LẠI ĐỀ KHÁC</button>
         `;
     }
 </script>

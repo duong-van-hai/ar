@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Hệ Thống Kiểm Tra Công Nghệ 10</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
     <style>
         :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #e74c3c; --light: #f4f7f6; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding: 20px; }
@@ -12,19 +11,17 @@
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
         .card { padding: 20px; border: 2px solid #eee; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.3s; background: #fff; }
         .card:hover { border-color: var(--secondary); background: #f1f9ff; transform: translateY(-3px); }
-        button { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         .timer { position: fixed; top: 20px; right: 20px; background: var(--danger); color: white; padding: 12px 25px; border-radius: 50px; font-weight: bold; z-index: 100; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .error-msg { color: red; background: #ffdada; padding: 10px; border-radius: 5px; margin-bottom: 20px; display: none; }
+        .question-box { margin-bottom: 20px; padding: 15px; border: 1px solid #eee; border-radius: 10px; }
+        .correct { background: #d4edda; border-color: #c3e6cb; }
+        .wrong { background: #f8d7da; border-color: #f5c6cb; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="error-display" class="error-msg"></div>
-
     <div id="role-page">
         <h1 style="text-align:center; color: var(--primary);">HỆ THỐNG KIỂM TRA CÔNG NGHỆ 10</h1>
         <div class="menu-grid">
@@ -35,7 +32,8 @@
 
     <div id="student-auth" class="hidden">
         <button onclick="showPage('role-page')">← Quay lại</button>
-        <input type="text" id="std-name" placeholder="Nhập tên em...">
+        <h2>Thông tin học sinh</h2>
+        <input type="text" id="std-name" placeholder="Nhập họ và tên em...">
         <button onclick="loginStudent()" style="width:100%">VÀO LỚP</button>
     </div>
 
@@ -49,97 +47,141 @@
 
     <div id="teacher-auth" class="hidden">
         <button onclick="showPage('role-page')">← Quay lại</button>
-        <input type="password" id="tea-pass" placeholder="Mật khẩu: 123">
+        <h2>Đăng nhập quản lý</h2>
+        <input type="password" id="tea-pass" placeholder="Nhập mật khẩu">
         <button onclick="loginTeacher()" style="width:100%">XÁC NHẬN</button>
     </div>
 
     <div id="teacher-home" class="hidden">
         <h2>Bảng Điều Khiển Giáo Viên</h2>
-        <div class="menu-grid">
-            <button onclick="showTeacherSection('create-quiz')">➕ Tạo Đề Mới</button>
-            <button onclick="manageQuizzes()">📋 Quản Lý</button>
-            <button onclick="showResults()">📊 Xem Điểm</button>
+        <div id="results-view">
+            <h3>Danh sách điểm số</h3>
+            <div id="score-table-container"></div>
         </div>
-        <div id="create-quiz" class="teacher-sec hidden">
-            <input type="text" id="quiz-name-input" placeholder="Tên bài thi">
-            <input type="file" id="file-input" accept=".docx">
-            <button onclick="processUpload()" style="background: var(--success); width: 100%;">LƯU ĐỀ</button>
-        </div>
-        <div id="quiz-manager-view" class="teacher-sec hidden"><div id="quiz-list-container"></div></div>
-        <div id="results-view" class="teacher-sec hidden"></div>
-        <br><button onclick="showPage('role-page')" style="background:var(--danger)">Thoát</button>
+        <br><button onclick="showPage('role-page')" style="background:var(--danger)">Thoát quản lý</button>
     </div>
 
     <div id="display-area" class="hidden">
         <div class="timer hidden" id="quiz-timer">00:00</div>
-        <div id="content-body"></div>
+        <button id="back-home-btn" onclick="showPage('student-home')">← Quay lại</button>
+        <div id="content-body" style="margin-top:20px"></div>
     </div>
 </div>
 
 <script>
-    // PHẦN DỮ LIỆU CỐ ĐỊNH (Không chứa ký tự lạ)
-    var PACKED_DATA = { 
-        quizzes: [
-            {
-                id: 1, name: "KIỂM TRA CUỐI KỲ 1", duration: 45, attemptMode: "once",
-                questions: [
-                    { q: "Công nghệ là gì?", options: ["Tri thức quy luật", "Ứng dụng máy móc", "Giải pháp quy trình kĩ thuật", "Thúc đẩy khoa học"], answer: "Giải pháp quy trình kĩ thuật" },
-                    { q: "Cấu trúc hệ thống kĩ thuật gồm?", options: ["Đầu vào, ra, hồi tiếp", "Đầu vào, ra, xử lí", "Đầu vào, ra, điều khiển", "Đầu vào, ra, lưu trữ"], answer: "Đầu vào, ra, xử lí" }
-                ]
-            }
-        ]
+    // DỮ LIỆU CÂU HỎI ĐÃ NHÚNG SẴN TỪ FILE WORD CỦA BẠN
+    const PACKED_DATA = {
+        quizzes: [{
+            id: 1,
+            name: "KIỂM TRA CUỐI KỲ 1 - CÔNG NGHỆ 10",
+            duration: 45,
+            questions: [
+                { q: "Công nghệ là gì?", options: ["Là hệ thống tri thức về mọi quy luật...", "Là việc ứng dụng các nguyên lí khoa học...", "Là giải pháp, quy trình, bí quyết kĩ thuật...", "Công nghệ thúc đẩy khoa học."], answer: "Là giải pháp, quy trình, bí quyết kĩ thuật..." },
+                { q: "Cấu trúc của hệ thống kĩ thuật gồm những thành phần nào?", options: ["Đầu vào, đầu ra và bộ phận hồi tiếp.", "Đầu vào, đầu ra và bộ phận xử lí.", "Đầu vào, đầu ra và bộ phận điều khiển.", "Đầu vào, đầu ra và bộ phận lưu trữ."], answer: "Đầu vào, đầu ra và bộ phận xử lí." },
+                { q: "Ngành công nghệ nào biển đổi điện năng thành cơ năng dựa trên nguyên lí cảm ứng điện từ?", options: ["Công nghệ điện – điện tử.", "Công nghệ điện – cơ.", "Công nghệ điều khiển và tự động hóa.", "Công nghệ điện – quang."], answer: "Công nghệ điện – cơ." },
+                { q: "Công nghệ mô phỏng các hoạt động trí tuệ của con người bằng máy móc. Đó là công nghệ gì?", options: ["Công nghệ trí tuệ nhân tạo.", "Công nghệ Internet vạn vật.", "Công nghệ Robot thông minh.", "Công nghệ in 3D."], answer: "Công nghệ trí tuệ nhân tạo." },
+                { q: "Sản phẩm nào sau đây là sản phẩm đặc trưng của cuộc Cách mạng công nghiệp lần thứ tư?", options: ["Máy tính.", "Robot thông minh.", "Máy dệt dùng động cơ hơi nước.", "Bóng đèn sợi đốt."], answer: "Robot thông minh." },
+                { q: "Ngành nghề nào thuộc ngành cơ khí?", options: ["Kĩ thuật lắp đặt điện.", "Sửa chữa, cơ khí chế tạo.", "Hệ thống điện.", "Vận hành nhà máy điện gió."], answer: "Sửa chữa, cơ khí chế tạo." },
+                { q: "Theo TCVN 7285:2003 quy định khổ giấy của các bản vẽ, có bao nhiêu khổ giấy chính?", options: ["3", "4", "5", "7"], answer: "5" },
+                { q: "Theo tiêu chuẩn trình bày bản vẽ kĩ thuật, đường gióng kích thước được vẽ bằng nét vẽ nào?", options: ["Nét liền mảnh.", "Nét đứt mảnh.", "Nét liền đậm.", "Nét lượn sóng."], answer: "Nét liền mảnh." }
+            ]
+        }]
     };
 
-    // KIỂM TRA LỖI KỸ THUẬT KHI CHẠY
-    window.onerror = function(msg) {
-        let err = document.getElementById('error-display');
-        err.style.display = 'block';
-        err.innerText = "Lỗi hệ thống: " + msg;
-    };
-
-    let db = { quizzes: PACKED_DATA.quizzes || [], results: [] };
-    let localData = JSON.parse(localStorage.getItem('edu_db_v6'));
-    if(localData) db.results = localData.results || [];
+    let db = { results: JSON.parse(localStorage.getItem('edu_results')) || [] };
 
     function showPage(id) {
-        document.querySelectorAll('.container > div:not(.error-msg)').forEach(div => div.classList.add('hidden'));
+        document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
+        if (id === 'quiz-timer') document.getElementById(id).classList.add('hidden');
     }
 
     function loginTeacher() {
-        if(document.getElementById('tea-pass').value === '123') showPage('teacher-home');
-        else alert('Sai mật khẩu!');
+        if(document.getElementById('tea-pass').value === '123') {
+            showPage('teacher-home');
+            showResults();
+        } else alert('Sai mật khẩu!');
     }
 
     function loginStudent() {
-        if(!document.getElementById('std-name').value) return alert("Nhập tên em!");
-        document.getElementById('welcome-std').innerText = "Chào " + document.getElementById('std-name').value;
+        let name = document.getElementById('std-name').value;
+        if(!name) return alert("Nhập tên em!");
+        document.getElementById('welcome-std').innerText = "Chào em: " + name;
         showPage('student-home');
     }
 
     function showQuizListForStudent() {
         showPage('display-area');
-        let h = '<h2>Bài kiểm tra của lớp</h2>';
-        db.quizzes.forEach(q => {
-            h += `<div style="padding:15px; border:1px solid #ddd; margin:10px 0; border-radius:8px; display:flex; justify-content:space-between">
-                <span>${q.name}</span>
-                <button onclick="startQuiz(${q.id})">Vào thi</button>
+        let html = '<h2>Danh sách bài kiểm tra</h2>';
+        PACKED_DATA.quizzes.forEach(quiz => {
+            html += `<div class="card" style="padding:15px; flex-direction:row; justify-content:space-between; display:flex; align-items:center;">
+                <span>${quiz.name}</span>
+                <button onclick="startQuiz(${quiz.id})">Vào thi</button>
             </div>`;
         });
-        document.getElementById('content-body').innerHTML = h;
+        document.getElementById('content-body').innerHTML = html;
     }
 
+    let timer;
     function startQuiz(id) {
-        let quiz = db.quizzes.find(x => x.id === id);
+        let quiz = PACKED_DATA.quizzes.find(x => x.id === id);
+        showPage('display-area');
+        document.getElementById('quiz-timer').classList.remove('hidden');
+        document.getElementById('back-home-btn').classList.add('hidden');
+        
         let html = `<h3>${quiz.name}</h3>`;
         quiz.questions.forEach((q, i) => {
-            html += `<div style="margin-bottom:20px">
+            html += `<div class="question-box">
                 <p><b>Câu ${i+1}: ${q.q}</b></p>
-                ${q.options.map(opt => `<label style="display:block"><input type="radio" name="q${i}" value="${opt}"> ${opt}</label>`).join('')}
+                ${q.options.map(opt => `<label style="display:block; margin:5px 0;"><input type="radio" name="q${i}" value="${opt}"> ${opt}</label>`).join('')}
             </div>`;
         });
-        html += `<button onclick="alert('Tính năng nộp bài đang được xử lý...')">NỘP BÀI</button>`;
+        html += `<button id="submit-btn" onclick="submitQuiz(${quiz.id})" style="background:var(--success); width:100%; padding:15px;">NỘP BÀI</button>`;
         document.getElementById('content-body').innerHTML = html;
+
+        let timeLeft = quiz.duration * 60;
+        timer = setInterval(() => {
+            timeLeft--;
+            let m = Math.floor(timeLeft/60), s = timeLeft%60;
+            document.getElementById('quiz-timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(timeLeft <= 0) submitQuiz(id);
+        }, 1000);
+    }
+
+    function submitQuiz(id) {
+        clearInterval(timer);
+        document.getElementById('quiz-timer').classList.add('hidden');
+        document.getElementById('back-home-btn').classList.remove('hidden');
+        
+        let quiz = PACKED_DATA.quizzes.find(x => x.id === id);
+        let score = 0;
+        let reviewHtml = '<h3>Kết quả chi tiết:</h3>';
+
+        quiz.questions.forEach((q, i) => {
+            let selected = document.querySelector(`input[name="q${i}"]:checked`);
+            let userAns = selected ? selected.value : "Bỏ trống";
+            let isCorrect = userAns.includes(q.answer.substring(0,10)); // So khớp tương đối
+
+            if(isCorrect) score++;
+            reviewHtml += `<div class="question-box ${isCorrect ? 'correct' : 'wrong'}">
+                <p><b>Câu ${i+1}: ${q.q}</b></p>
+                <p>Bạn chọn: ${userAns} | Đáp án đúng: ${q.answer}</p>
+            </div>`;
+        });
+
+        let finalScore = (score/quiz.questions.length*10).toFixed(1);
+        db.results.push({ name: document.getElementById('std-name').value, quiz: quiz.name, score: finalScore, date: new Date().toLocaleString() });
+        localStorage.setItem('edu_results', JSON.stringify(db.results));
+
+        document.getElementById('content-body').innerHTML = `<h2 style="text-align:center">ĐIỂM CỦA BẠN: ${finalScore}</h2>` + reviewHtml;
+    }
+
+    function showResults() {
+        let html = '<table border="1" style="width:100%; border-collapse:collapse;"><tr><th>Tên</th><th>Bài</th><th>Điểm</th><th>Ngày</th></tr>';
+        db.results.slice().reverse().forEach(r => {
+            html += `<tr><td>${r.name}</td><td>${r.quiz}</td><td>${r.score}</td><td>${r.date}</td></tr>`;
+        });
+        document.getElementById('score-table-container').innerHTML = html + '</table>';
     }
 </script>
 </body>

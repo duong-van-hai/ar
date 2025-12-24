@@ -9,41 +9,43 @@
         body { font-family: sans-serif; background: var(--bg); line-height: 1.6; padding: 10px; }
         .container { max-width: 650px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: var(--blue); margin-bottom: 25px; }
-        .sticky-header { position: sticky; top: 0; background: white; padding: 10px 0; z-index: 100; border-bottom: 2px solid var(--blue); margin-bottom: 20px; }
-        input[type="text"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1.1rem; }
+        .input-group { margin-bottom: 20px; text-align: center; }
+        input[type="text"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1.1rem; text-align: center; }
         .quiz-item { margin-bottom: 30px; padding: 15px; border: 1px solid #eee; border-radius: 10px; }
         .question { font-weight: bold; margin-bottom: 12px; color: #202124; }
         label { display: block; padding: 12px; margin: 8px 0; background: #f8f9fa; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
         label:hover { background: #e8f0fe; border-color: var(--blue); }
         input[type="radio"] { margin-right: 12px; transform: scale(1.2); }
-        .btn-submit { width: 100%; padding: 16px; background: var(--blue); color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px; }
-        .btn-submit:hover { background: #1557b0; }
+        .btn { width: 100%; padding: 16px; color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-blue { background: var(--blue); }
+        .btn-blue:hover { background: #1557b0; }
+        .btn-gray { background: #6c757d; }
         #result { margin-top: 20px; padding: 30px; text-align: center; border-radius: 12px; display: none; background: #fff; border: 2px solid var(--blue); }
         .score { font-size: 3rem; color: #d93025; font-weight: bold; margin: 15px 0; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<div class="container" id="quiz-app">
+<div class="container" id="setup-box">
     <h1>KIỂM TRA CÔNG NGHỆ</h1>
-    
-    <div class="sticky-header">
-        <input type="text" id="std-name" placeholder="NHẬP HỌ TÊN ĐỂ HIỆN ĐỀ THI...">
+    <div class="input-group">
+        <input type="text" id="std-name" placeholder="Nhập họ và tên của em...">
+        <button class="btn btn-blue" onclick="startQuiz()">BẮT ĐẦU LÀM BÀI</button>
     </div>
-
-    <div id="quiz-content">
-        <p style="text-align:center; color:#666;">Vui lòng nhập tên ở trên để bắt đầu làm bài.</p>
-    </div>
-
-    <button id="submit-btn" class="btn-submit" onclick="submitQuiz()" style="display:none;">NỘP BÀI KIỂM TRA</button>
 </div>
 
-<div class="container" id="result"></div>
+<div class="container hidden" id="quiz-box">
+    <h2 id="display-name" style="text-align:center; color: #555;"></h2>
+    <div id="quiz-content"></div>
+    <button class="btn btn-blue" onclick="submitQuiz()">NỘP BÀI KIỂM TRA</button>
+</div>
+
+<div class="container id="result" class="hidden"></div>
 
 <script>
-    // Ngân hàng 36 câu hỏi tổng hợp từ 2 đề 
+    // Ngân hàng 36 câu hỏi tổng hợp từ đề Lớp 10 và Lớp 11
     const bank = [
-        // Nhóm câu hỏi Lớp 10 [cite: 1, 6, 11, 16, 19, 21, 23, 28, 33, 35, 37, 39]
         { q: "Công nghệ là gì?", options: ["Tri thức khoa học", "Thiết kế máy móc", "Giải pháp, quy trình, bí quyết kĩ thuật", "Thúc đẩy khoa học"], a: "Giải pháp, quy trình, bí quyết kĩ thuật" },
         { q: "Cấu trúc hệ thống kĩ thuật gồm?", options: ["Đầu vào, ra, hồi tiếp", "Đầu vào, ra, xử lí", "Đầu vào, ra, điều khiển", "Đầu vào, ra, lưu trữ"], a: "Đầu vào, đầu ra và bộ phận xử lí." },
         { q: "Biến đổi điện năng thành cơ năng là công nghệ?", options: ["Điện – điện tử", "Điện – cơ", "Tự động hóa", "Điện – quang"], a: "Công nghệ điện – cơ." },
@@ -56,8 +58,6 @@
         { q: "Nét liền mảnh dùng để vẽ?", options: ["Đường gióng kích thước", "Đường bao thấy", "Đường tâm", "Đường trục"], a: "Nét liền mảnh." },
         { q: "Hình cắt toàn bộ biểu diễn cấu tạo?", options: ["Bên ngoài", "Bên trong", "Khuất", "Mặt cắt chập"], a: "Hình cắt toàn bộ." },
         { q: "Cặp hình chiếu trục đo biểu diễn cùng vật thể là?", options: ["(1)-(2)", "(1)-(6); (3)-(5); (4)-(7)", "(2)-(5)", "(3)-(4)"], a: "(1)-(6); (3) - (5); (4) - (7)." },
-
-        // Nhóm câu hỏi Lớp 11 [cite: 43, 45, 47, 49, 51, 53, 55, 57, 59, 64, 66, 71]
         { q: "Vai trò cơ khí trong giao thông là?", options: ["Máy MRI", "Tưới tự động", "Động cơ ô tô, xe máy", "Máy xay lúa"], a: "Động cơ ô tô, xe máy." },
         { q: "Ai trực tiếp lắp động cơ ô tô?", options: ["Công nhân lắp ráp cơ khí", "Giám đốc", "Kỹ sư", "Bảo vệ"], a: "Công nhân lắp ráp cơ khí." },
         { q: "Tính chịu ăn mòn thuộc tính chất?", options: ["Vật lý", "Cơ học", "Hóa học", "Công nghệ"], a: "tính chịu ăn mòn." },
@@ -66,13 +66,10 @@
         { q: "Gia công có phoi là phương pháp?", options: ["Đúc", "Tiện", "Rèn", "Hàn"], a: "Tiện." },
         { q: "Ưu điểm của phương pháp hàn là?", options: ["Kém bền", "Hở", "Dễ cong", "Tiết kiệm kim loại"], a: "Tiết kiệm kim loại." },
         { q: "Chi tiết gắn dao trên máy tiện là?", options: ["Mâm cặp", "Ụ động", "Bàn gá dao", "Hộp tốc độ"], a: "bàn gá dao." },
-        { q: "Trình tự sản xuất cơ khí đúng là?", options: ["Phôi-Gia công-Xử lý-Lắp ráp-Đóng gói", "Gia công-Phôi-Lắp ráp", "Lắp ráp-Đóng gói-Gia công", "Phôi-Lắp ráp-Gia công"], a: "Chế tạo phôi  Gia công  xử lí và bảo vệ  lắp ráp  đóng gói." },
+        { q: "Trình tự sản xuất cơ khí đúng là?", options: ["Phôi-Gia công-Xử lý-Lắp ráp", "Gia công-Phôi-Lắp ráp", "Lắp ráp-Đóng gói-Gia công", "Phôi-Lắp ráp-Gia công"], a: "Chế tạo phôi  Gia công  xử lí và bảo vệ  lắp ráp  đóng gói." },
         { q: "Xử lý bề mặt bao gồm hoạt động?", options: ["Tiện, phay", "Đúc, rèn", "Sơn, mạ, phủ hóa chất", "Lắp bu lông"], a: "Sơn, mạ, phủ hóa chất chống ăn mòn." },
         { q: "Đặc điểm nổi bật của Robot công nghiệp?", options: ["Suy nghĩ như người", "Làm theo chương trình lập sẵn", "Tốc độ ánh sáng", "Tự sửa chữa"], a: "Thực hiện các thao tác theo chương trình được lập trình sẵn." },
         { q: "Xếp thùng carton lên pallet là công đoạn?", options: ["Gia công", "Lắp ráp", "Kiểm tra", "Vận chuyển và xếp dỡ"], a: "Vận chuyển và xếp dỡ." },
-        
-        // Thêm các câu hỏi bổ sung dựa trên nội dung đề 
-        { q: "Năng lượng đã biến đổi là thành phần nào?", options: ["Đầu vào", "Đầu ra", "Xử lý", "Hồi tiếp"], a: "Đầu ra" },
         { q: "IoT giúp kết nối thiết bị qua?", options: ["Dây dẫn", "Mạng Internet", "Sóng âm", "Thủ công"], a: "Mạng Internet" },
         { q: "Tỉ lệ 1:2 là loại tỉ lệ?", options: ["Phóng to", "Thu nhỏ", "Nguyên hình", "Tự do"], a: "Thu nhỏ" },
         { q: "Nét liền đậm vẽ đường nào?", options: ["Bao thấy", "Bao khuất", "Tâm", "Kích thước"], a: "Nét liền đậm." },
@@ -83,30 +80,35 @@
         { q: "Hợp kim của sắt và carbon là?", options: ["Đồng", "Nhôm", "Thép và gang", "Chì"], a: "Thép và gang" },
         { q: "Đúc là phương pháp chế tạo phôi bằng?", options: ["Rót lỏng vào khuôn", "Đập búa", "Cắt gọt", "Nối điện"], a: "Rót lỏng vào khuôn" },
         { q: "Rèn thuộc gia công?", options: ["Cắt gọt", "Áp lực", "Đúc", "Hàn"], a: "Áp lực" },
-        { q: "AI mô phỏng trí tuệ của?", options: ["Máy móc", "Con người", "Robot", "Động vật"], a: "Con người" }
+        { q: "AI mô phỏng trí tuệ của?", options: ["Máy móc", "Con người", "Robot", "Động vật"], a: "Con người" },
+        { q: "Tỉ lệ 2:1 là tỉ lệ?", options: ["Phóng to", "Thu nhỏ", "Nguyên hình", "Tự do"], a: "Phóng to" }
     ];
 
-    // Lấy ngẫu nhiên 20 câu
-    const questions = bank.sort(() => 0.5 - Math.random()).slice(0, 20);
+    let currentQuestions = [];
 
-    const nameInput = document.getElementById('std-name');
-    const display = document.getElementById('quiz-content');
-    const submitBtn = document.getElementById('submit-btn');
-
-    // Sự kiện nhập tên để hiện đề
-    nameInput.addEventListener('input', function() {
-        if (this.value.trim().length >= 2) {
-            renderQuiz();
-            submitBtn.style.display = 'block';
-        } else {
-            display.innerHTML = '<p style="text-align:center; color:#666;">Vui lòng nhập tên ở trên để bắt đầu làm bài.</p>';
-            submitBtn.style.display = 'none';
+    function startQuiz() {
+        const name = document.getElementById('std-name').value.trim();
+        if (name.length < 2) {
+            alert("Vui lòng nhập họ tên của em!");
+            return;
         }
-    });
+
+        // Chọn ngẫu nhiên 20 câu từ 36 câu
+        currentQuestions = bank.sort(() => 0.5 - Math.random()).slice(0, 20);
+
+        // Hiển thị giao diện làm bài
+        document.getElementById('setup-box').classList.add('hidden');
+        document.getElementById('quiz-box').classList.remove('hidden');
+        document.getElementById('display-name').innerText = "Học sinh: " + name.toUpperCase();
+
+        renderQuiz();
+        window.scrollTo(0, 0);
+    }
 
     function renderQuiz() {
+        const display = document.getElementById('quiz-content');
         display.innerHTML = '';
-        questions.forEach((item, i) => {
+        currentQuestions.forEach((item, i) => {
             let opts = [...item.options].sort(() => 0.5 - Math.random());
             let html = `<div class="quiz-item">
                 <div class="question">Câu ${i+1}: ${item.q}</div>
@@ -117,34 +119,36 @@
     }
 
     function submitQuiz() {
-        const name = nameInput.value.trim();
         let score = 0;
-        let unanswered = false;
+        let completed = true;
 
-        questions.forEach((item, i) => {
+        currentQuestions.forEach((item, i) => {
             const sel = document.querySelector(`input[name="q${i}"]:checked`);
             if (sel) {
                 if (sel.value === item.a) score++;
             } else {
-                unanswered = true;
+                completed = false;
             }
         });
 
-        if (unanswered) {
-            if (!confirm("Bạn còn câu hỏi chưa trả lời. Vẫn muốn nộp bài?")) return;
+        if (!completed) {
+            if (!confirm("Em còn câu hỏi chưa trả lời. Vẫn muốn nộp bài?")) return;
         }
 
-        const finalScore = (score / questions.length * 10).toFixed(1);
-        document.getElementById('quiz-app').style.display = 'none';
-        
+        const finalScore = (score / currentQuestions.length * 10).toFixed(1);
+        const name = document.getElementById('std-name').value.trim();
+
+        document.getElementById('quiz-box').classList.add('hidden');
         const res = document.getElementById('result');
+        res.classList.remove('hidden');
         res.style.display = 'block';
         res.innerHTML = `
             <h2>KẾT QUẢ CỦA: ${name.toUpperCase()}</h2>
             <div class="score">${finalScore} ĐIỂM</div>
-            <p>Đúng: ${score}/${questions.length} câu</p>
-            <button class="btn-submit" onclick="location.reload()" style="background:#6c757d">LÀM LẠI ĐỀ KHÁC</button>
+            <p>Đúng: ${score}/${currentQuestions.length} câu</p>
+            <button class="btn btn-gray" onclick="location.reload()">LÀM ĐỀ KHÁC</button>
         `;
+        window.scrollTo(0, 0);
     }
 </script>
 </body>

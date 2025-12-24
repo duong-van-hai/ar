@@ -2,187 +2,104 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ Thống Kiểm Tra Công Nghệ 10</title>
+    <title>KIỂM TRA CÔNG NGHỆ 10</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #e74c3c; --light: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--light); margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
-        .hidden { display: none; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
-        .card { padding: 20px; border: 2px solid #eee; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.3s; background: #fff; }
-        .card:hover { border-color: var(--secondary); background: #f1f9ff; transform: translateY(-3px); }
-        button { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        .timer { position: fixed; top: 20px; right: 20px; background: var(--danger); color: white; padding: 12px 25px; border-radius: 50px; font-weight: bold; z-index: 100; }
-        .question-box { margin-bottom: 20px; padding: 15px; border: 1px solid #eee; border-radius: 10px; }
-        .correct { background: #d4edda; border-color: #c3e6cb; }
-        .wrong { background: #f8d7da; border-color: #f5c6cb; }
+        body { font-family: sans-serif; background: #f0f2f5; line-height: 1.6; padding: 10px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #1a73e8; font-size: 1.5rem; }
+        .input-group { margin-bottom: 20px; }
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 1rem; }
+        .quiz-item { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .question { font-weight: bold; margin-bottom: 10px; color: #333; }
+        label { display: block; padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+        label:hover { background: #e8f0fe; }
+        input[type="radio"] { margin-right: 10px; }
+        button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        button:hover { background: #1557b0; }
+        #result { margin-top: 20px; padding: 20px; text-align: center; border-radius: 10px; display: none; }
+        .score { font-size: 2rem; color: #d93025; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="role-page">
-        <h1 style="text-align:center; color: var(--primary);">HỆ THỐNG KIỂM TRA CÔNG NGHỆ 10</h1>
-        <div class="menu-grid">
-            <div class="card" onclick="showPage('student-auth')"><h2>👨‍🎓 HỌC SINH</h2></div>
-            <div class="card" onclick="showPage('teacher-auth')"><h2>👨‍🏫 GIÁO VIÊN</h2></div>
+<div class="container" id="main-box">
+    <h1>KIỂM TRA CÔNG NGHỆ 10</h1>
+    
+    <div class="input-group">
+        <input type="text" id="student-name" placeholder="Nhập họ và tên của em...">
+    </div>
+
+    <div id="quiz-container">
         </div>
-    </div>
 
-    <div id="student-auth" class="hidden">
-        <button onclick="showPage('role-page')">← Quay lại</button>
-        <h2>Thông tin học sinh</h2>
-        <input type="text" id="std-name" placeholder="Nhập họ và tên em...">
-        <button onclick="loginStudent()" style="width:100%">VÀO LỚP</button>
-    </div>
-
-    <div id="student-home" class="hidden">
-        <h2 id="welcome-std"></h2>
-        <div class="menu-grid">
-            <div class="card" onclick="showQuizListForStudent()">📝 Làm Bài Kiểm Tra</div>
-        </div>
-        <button onclick="showPage('role-page')" style="background:var(--danger)">Đăng xuất</button>
-    </div>
-
-    <div id="teacher-auth" class="hidden">
-        <button onclick="showPage('role-page')">← Quay lại</button>
-        <h2>Đăng nhập quản lý</h2>
-        <input type="password" id="tea-pass" placeholder="Nhập mật khẩu">
-        <button onclick="loginTeacher()" style="width:100%">XÁC NHẬN</button>
-    </div>
-
-    <div id="teacher-home" class="hidden">
-        <h2>Bảng Điều Khiển Giáo Viên</h2>
-        <div id="results-view">
-            <h3>Danh sách điểm số</h3>
-            <div id="score-table-container"></div>
-        </div>
-        <br><button onclick="showPage('role-page')" style="background:var(--danger)">Thoát quản lý</button>
-    </div>
-
-    <div id="display-area" class="hidden">
-        <div class="timer hidden" id="quiz-timer">00:00</div>
-        <button id="back-home-btn" onclick="showPage('student-home')">← Quay lại</button>
-        <div id="content-body" style="margin-top:20px"></div>
-    </div>
+    <button onclick="submitQuiz()">NỘP BÀI</button>
+    
+    <div id="result"></div>
 </div>
 
 <script>
-    // DỮ LIỆU CÂU HỎI ĐÃ NHÚNG SẴN TỪ FILE WORD CỦA BẠN
-    const PACKED_DATA = {
-        quizzes: [{
-            id: 1,
-            name: "KIỂM TRA CUỐI KỲ 1 - CÔNG NGHỆ 10",
-            duration: 45,
-            questions: [
-                { q: "Công nghệ là gì?", options: ["Là hệ thống tri thức về mọi quy luật...", "Là việc ứng dụng các nguyên lí khoa học...", "Là giải pháp, quy trình, bí quyết kĩ thuật...", "Công nghệ thúc đẩy khoa học."], answer: "Là giải pháp, quy trình, bí quyết kĩ thuật..." },
-                { q: "Cấu trúc của hệ thống kĩ thuật gồm những thành phần nào?", options: ["Đầu vào, đầu ra và bộ phận hồi tiếp.", "Đầu vào, đầu ra và bộ phận xử lí.", "Đầu vào, đầu ra và bộ phận điều khiển.", "Đầu vào, đầu ra và bộ phận lưu trữ."], answer: "Đầu vào, đầu ra và bộ phận xử lí." },
-                { q: "Ngành công nghệ nào biển đổi điện năng thành cơ năng dựa trên nguyên lí cảm ứng điện từ?", options: ["Công nghệ điện – điện tử.", "Công nghệ điện – cơ.", "Công nghệ điều khiển và tự động hóa.", "Công nghệ điện – quang."], answer: "Công nghệ điện – cơ." },
-                { q: "Công nghệ mô phỏng các hoạt động trí tuệ của con người bằng máy móc. Đó là công nghệ gì?", options: ["Công nghệ trí tuệ nhân tạo.", "Công nghệ Internet vạn vật.", "Công nghệ Robot thông minh.", "Công nghệ in 3D."], answer: "Công nghệ trí tuệ nhân tạo." },
-                { q: "Sản phẩm nào sau đây là sản phẩm đặc trưng của cuộc Cách mạng công nghiệp lần thứ tư?", options: ["Máy tính.", "Robot thông minh.", "Máy dệt dùng động cơ hơi nước.", "Bóng đèn sợi đốt."], answer: "Robot thông minh." },
-                { q: "Ngành nghề nào thuộc ngành cơ khí?", options: ["Kĩ thuật lắp đặt điện.", "Sửa chữa, cơ khí chế tạo.", "Hệ thống điện.", "Vận hành nhà máy điện gió."], answer: "Sửa chữa, cơ khí chế tạo." },
-                { q: "Theo TCVN 7285:2003 quy định khổ giấy của các bản vẽ, có bao nhiêu khổ giấy chính?", options: ["3", "4", "5", "7"], answer: "5" },
-                { q: "Theo tiêu chuẩn trình bày bản vẽ kĩ thuật, đường gióng kích thước được vẽ bằng nét vẽ nào?", options: ["Nét liền mảnh.", "Nét đứt mảnh.", "Nét liền đậm.", "Nét lượn sóng."], answer: "Nét liền mảnh." }
-            ]
-        }]
-    };
+    // Dữ liệu 12 câu hỏi từ file của bạn
+    const questions = [
+        { q: "Câu 1: Công nghệ là gì?", options: ["Hệ thống tri thức khoa học", "Ứng dụng nguyên lí thiết kế", "Giải pháp, quy trình, bí quyết kĩ thuật", "Thúc đẩy khoa học"], a: "Giải pháp, quy trình, bí quyết kĩ thuật" },
+        { q: "Câu 2: Cấu trúc của hệ thống kĩ thuật gồm?", options: ["Đầu vào, đầu ra, hồi tiếp", "Đầu vào, đầu ra, xử lí", "Đầu vào, đầu ra, điều khiển", "Đầu vào, đầu ra, lưu trữ"], a: "Đầu vào, đầu ra, xử lí" },
+        { q: "Câu 3: Ngành công nghệ biến đổi điện năng thành cơ năng?", options: ["Điện – điện tử", "Điện – cơ", "Điều khiển tự động hóa", "Điện – quang"], a: "Điện – cơ" },
+        { q: "Câu 4: Công nghệ mô phỏng trí tuệ con người?", options: ["Trí tuệ nhân tạo (AI)", "Internet vạn vật (IoT)", "Robot thông minh", "In 3D"], a: "Trí tuệ nhân tạo (AI)" },
+        { q: "Câu 5: Công nghệ nào dùng quy trình đắp lớp vật liệu?", options: ["Luyện kim", "Gia công áp lực", "Nano", "In 3D"], a: "In 3D" },
+        { q: "Câu 6: Sản phẩm đặc trưng Cách mạng 4.0?", options: ["Máy tính", "Robot thông minh", "Máy dệt hơi nước", "Bóng đèn"], a: "Robot thông minh" },
+        { q: "Câu 7: Ngành nghề nào thuộc ngành cơ khí?", options: ["Lắp đặt điện", "Sửa chữa, cơ khí chế tạo", "Hệ thống điện", "Vận hành điện gió"], a: "Sửa chữa, cơ khí chế tạo" },
+        { q: "Câu 8: Nghề nghiệp có xu hướng tăng?", options: ["Công nghiệp, lắp ráp, vận hành", "Nông nghiệp, ngư nghiệp", "Thủ công mỹ nghệ", "Sản xuất truyền thống"], a: "Công nghiệp, lắp ráp, vận hành" },
+        { q: "Câu 9: Có bao nhiêu khổ giấy chính?", options: ["3", "4", "5", "7"], a: "5" },
+        { q: "Câu 10: Đường gióng kích thước vẽ bằng nét gì?", options: ["Liền mảnh", "Đứt mảnh", "Liền đậm", "Lượn sóng"], a: "Liền mảnh" },
+        { q: "Câu 11: Hình cắt toàn bộ dùng để biểu diễn gì?", options: ["Vật thể đối xứng", "Cấu tạo bên trong", "Cấu tạo bên ngoài", "Mặt cắt chập"], a: "Cấu tạo bên trong" },
+        { q: "Câu 12: Hình chiếu trục đo thường dùng là?", options: ["Xiên góc cân", "Vuông góc đều", "Cả 2 loại trên", "Hình chiếu đứng"], a: "Cả 2 loại trên" }
+    ];
 
-    let db = { results: JSON.parse(localStorage.getItem('edu_results')) || [] };
-
-    function showPage(id) {
-        document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
-        document.getElementById(id).classList.remove('hidden');
-        if (id === 'quiz-timer') document.getElementById(id).classList.add('hidden');
-    }
-
-    function loginTeacher() {
-        if(document.getElementById('tea-pass').value === '123') {
-            showPage('teacher-home');
-            showResults();
-        } else alert('Sai mật khẩu!');
-    }
-
-    function loginStudent() {
-        let name = document.getElementById('std-name').value;
-        if(!name) return alert("Nhập tên em!");
-        document.getElementById('welcome-std').innerText = "Chào em: " + name;
-        showPage('student-home');
-    }
-
-    function showQuizListForStudent() {
-        showPage('display-area');
-        let html = '<h2>Danh sách bài kiểm tra</h2>';
-        PACKED_DATA.quizzes.forEach(quiz => {
-            html += `<div class="card" style="padding:15px; flex-direction:row; justify-content:space-between; display:flex; align-items:center;">
-                <span>${quiz.name}</span>
-                <button onclick="startQuiz(${quiz.id})">Vào thi</button>
-            </div>`;
+    // Hiển thị câu hỏi ngay khi vào trang
+    const container = document.getElementById('quiz-container');
+    questions.forEach((item, index) => {
+        let html = `<div class="quiz-item">
+            <div class="question">${item.q}</div>`;
+        item.options.forEach(opt => {
+            html += `<label><input type="radio" name="q${index}" value="${opt}"> ${opt}</label>`;
         });
-        document.getElementById('content-body').innerHTML = html;
-    }
+        html += `</div>`;
+        container.innerHTML += html;
+    });
 
-    let timer;
-    function startQuiz(id) {
-        let quiz = PACKED_DATA.quizzes.find(x => x.id === id);
-        showPage('display-area');
-        document.getElementById('quiz-timer').classList.remove('hidden');
-        document.getElementById('back-home-btn').classList.add('hidden');
-        
-        let html = `<h3>${quiz.name}</h3>`;
-        quiz.questions.forEach((q, i) => {
-            html += `<div class="question-box">
-                <p><b>Câu ${i+1}: ${q.q}</b></p>
-                ${q.options.map(opt => `<label style="display:block; margin:5px 0;"><input type="radio" name="q${i}" value="${opt}"> ${opt}</label>`).join('')}
-            </div>`;
-        });
-        html += `<button id="submit-btn" onclick="submitQuiz(${quiz.id})" style="background:var(--success); width:100%; padding:15px;">NỘP BÀI</button>`;
-        document.getElementById('content-body').innerHTML = html;
+    function submitQuiz() {
+        const name = document.getElementById('student-name').value;
+        if (!name) {
+            alert("Vui lòng nhập họ tên trước khi nộp bài!");
+            return;
+        }
 
-        let timeLeft = quiz.duration * 60;
-        timer = setInterval(() => {
-            timeLeft--;
-            let m = Math.floor(timeLeft/60), s = timeLeft%60;
-            document.getElementById('quiz-timer').innerText = `${m}:${s<10?'0':''}${s}`;
-            if(timeLeft <= 0) submitQuiz(id);
-        }, 1000);
-    }
-
-    function submitQuiz(id) {
-        clearInterval(timer);
-        document.getElementById('quiz-timer').classList.add('hidden');
-        document.getElementById('back-home-btn').classList.remove('hidden');
-        
-        let quiz = PACKED_DATA.quizzes.find(x => x.id === id);
         let score = 0;
-        let reviewHtml = '<h3>Kết quả chi tiết:</h3>';
-
-        quiz.questions.forEach((q, i) => {
-            let selected = document.querySelector(`input[name="q${i}"]:checked`);
-            let userAns = selected ? selected.value : "Bỏ trống";
-            let isCorrect = userAns.includes(q.answer.substring(0,10)); // So khớp tương đối
-
-            if(isCorrect) score++;
-            reviewHtml += `<div class="question-box ${isCorrect ? 'correct' : 'wrong'}">
-                <p><b>Câu ${i+1}: ${q.q}</b></p>
-                <p>Bạn chọn: ${userAns} | Đáp án đúng: ${q.answer}</p>
-            </div>`;
+        questions.forEach((item, index) => {
+            const selected = document.querySelector(`input[name="q${index}"]:checked`);
+            if (selected && selected.value === item.a) {
+                score++;
+            }
         });
 
-        let finalScore = (score/quiz.questions.length*10).toFixed(1);
-        db.results.push({ name: document.getElementById('std-name').value, quiz: quiz.name, score: finalScore, date: new Date().toLocaleString() });
-        localStorage.setItem('edu_results', JSON.stringify(db.results));
-
-        document.getElementById('content-body').innerHTML = `<h2 style="text-align:center">ĐIỂM CỦA BẠN: ${finalScore}</h2>` + reviewHtml;
-    }
-
-    function showResults() {
-        let html = '<table border="1" style="width:100%; border-collapse:collapse;"><tr><th>Tên</th><th>Bài</th><th>Điểm</th><th>Ngày</th></tr>';
-        db.results.slice().reverse().forEach(r => {
-            html += `<tr><td>${r.name}</td><td>${r.quiz}</td><td>${r.score}</td><td>${r.date}</td></tr>`;
-        });
-        document.getElementById('score-table-container').innerHTML = html + '</table>';
+        const finalScore = (score / questions.length * 10).toFixed(1);
+        
+        // Hiện kết quả
+        document.getElementById('quiz-container').style.display = 'none';
+        document.querySelector('button').style.display = 'none';
+        document.querySelector('.input-group').style.display = 'none';
+        
+        const resultBox = document.getElementById('result');
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = `
+            <h2>KẾT QUẢ CỦA ${name.toUpperCase()}</h2>
+            <div class="score">${finalScore} ĐIỂM</div>
+            <p>Số câu đúng: ${score}/${questions.length}</p>
+            <p>Chụp ảnh màn hình này để gửi cho giáo viên.</p>
+            <button onclick="location.reload()" style="background:#6c757d">LÀM LẠI</button>
+        `;
     }
 </script>
+
 </body>
 </html>

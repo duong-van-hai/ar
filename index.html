@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ Thống Kiểm Tra Công Nghệ 10 - Đóng Gói</title>
+    <title>Hệ Thống Kiểm Tra Công Nghệ 10</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
     <style>
         :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #e74c3c; --light: #f4f7f6; }
@@ -15,16 +15,16 @@
         button { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
         .timer { position: fixed; top: 20px; right: 20px; background: var(--danger); color: white; padding: 12px 25px; border-radius: 50px; font-weight: bold; z-index: 100; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        .quiz-item-row { background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .correct-bg { background: #d4edda; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #28a745; }
-        .wrong-bg { background: #f8d7da; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #dc3545; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .error-msg { color: red; background: #ffdada; padding: 10px; border-radius: 5px; margin-bottom: 20px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div id="error-display" class="error-msg"></div>
+
     <div id="role-page">
         <h1 style="text-align:center; color: var(--primary);">HỆ THỐNG KIỂM TRA CÔNG NGHỆ 10</h1>
         <div class="menu-grid">
@@ -49,59 +49,98 @@
 
     <div id="teacher-auth" class="hidden">
         <button onclick="showPage('role-page')">← Quay lại</button>
-        <input type="password" id="tea-pass" placeholder="Nhập mật khẩu quản lý">
+        <input type="password" id="tea-pass" placeholder="Mật khẩu: 123">
         <button onclick="loginTeacher()" style="width:100%">XÁC NHẬN</button>
     </div>
 
     <div id="teacher-home" class="hidden">
-        <h2>Quản Lý Giáo Viên</h2>
+        <h2>Bảng Điều Khiển Giáo Viên</h2>
         <div class="menu-grid">
             <button onclick="showTeacherSection('create-quiz')">➕ Tạo Đề Mới</button>
-            <button onclick="manageQuizzes()">📋 Quản Lý & Xuất File</button>
+            <button onclick="manageQuizzes()">📋 Quản Lý</button>
             <button onclick="showResults()">📊 Xem Điểm</button>
         </div>
-
         <div id="create-quiz" class="teacher-sec hidden">
-            <h3>Cấu hình bài thi bổ sung</h3>
             <input type="text" id="quiz-name-input" placeholder="Tên bài thi">
-            <select id="duration-input">
-                <option value="15">15 Phút</option><option value="45">45 Phút</option>
-            </select>
-            <input type="number" id="limit-input" placeholder="Số câu trích ngẫu nhiên">
-            <select id="attempt-mode-input">
-                <option value="multiple">Làm nhiều lần</option>
-                <option value="once">Chỉ làm 1 lần</option>
-            </select>
             <input type="file" id="file-input" accept=".docx">
-            <button onclick="processUpload()" style="background: var(--success); width: 100%;">LƯU ĐỀ VÀO MÁY</button>
-            <div id="upload-msg" style="margin-top:10px; font-weight:bold; text-align:center;"></div>
+            <button onclick="processUpload()" style="background: var(--success); width: 100%;">LƯU ĐỀ</button>
         </div>
-
-        <div id="quiz-manager-view" class="teacher-sec hidden">
-            <div id="quiz-list-container"></div>
-            <hr>
-            <button onclick="exportFullApp()" style="background:#8e44ad; width:100%; padding:15px;">💾 XUẤT FILE ĐÓNG GÓI MỚI</button>
-        </div>
-        
+        <div id="quiz-manager-view" class="teacher-sec hidden"><div id="quiz-list-container"></div></div>
         <div id="results-view" class="teacher-sec hidden"></div>
-        <br><button onclick="showPage('role-page')" style="background:var(--danger)">Đăng xuất</button>
+        <br><button onclick="showPage('role-page')" style="background:var(--danger)">Thoát</button>
     </div>
 
     <div id="display-area" class="hidden">
         <div class="timer hidden" id="quiz-timer">00:00</div>
-        <button onclick="exitContent()">← Quay lại</button>
-        <div id="content-body" style="margin-top:20px"></div>
+        <div id="content-body"></div>
     </div>
 </div>
 
-<script id="embedded-data">
-    // DỮ LIỆU ĐÃ ĐƯỢC NHÚNG TRỰC TIẾP TỪ FILE WORD CỦA BẠN
+<script>
+    // PHẦN DỮ LIỆU CỐ ĐỊNH (Không chứa ký tự lạ)
     var PACKED_DATA = { 
         quizzes: [
             {
-                id: 1713900000000, 
-                name: "KIỂM TRA CUỐI KỲ 1 - CÔNG NGHỆ 10", 
-                duration: 45, 
-                attemptMode: "once", 
+                id: 1, name: "KIỂM TRA CUỐI KỲ 1", duration: 45, attemptMode: "once",
                 questions: [
-                    { q: "Công nghệ là gì?", options: ["Là hệ thống tri thức về
+                    { q: "Công nghệ là gì?", options: ["Tri thức quy luật", "Ứng dụng máy móc", "Giải pháp quy trình kĩ thuật", "Thúc đẩy khoa học"], answer: "Giải pháp quy trình kĩ thuật" },
+                    { q: "Cấu trúc hệ thống kĩ thuật gồm?", options: ["Đầu vào, ra, hồi tiếp", "Đầu vào, ra, xử lí", "Đầu vào, ra, điều khiển", "Đầu vào, ra, lưu trữ"], answer: "Đầu vào, ra, xử lí" }
+                ]
+            }
+        ]
+    };
+
+    // KIỂM TRA LỖI KỸ THUẬT KHI CHẠY
+    window.onerror = function(msg) {
+        let err = document.getElementById('error-display');
+        err.style.display = 'block';
+        err.innerText = "Lỗi hệ thống: " + msg;
+    };
+
+    let db = { quizzes: PACKED_DATA.quizzes || [], results: [] };
+    let localData = JSON.parse(localStorage.getItem('edu_db_v6'));
+    if(localData) db.results = localData.results || [];
+
+    function showPage(id) {
+        document.querySelectorAll('.container > div:not(.error-msg)').forEach(div => div.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function loginTeacher() {
+        if(document.getElementById('tea-pass').value === '123') showPage('teacher-home');
+        else alert('Sai mật khẩu!');
+    }
+
+    function loginStudent() {
+        if(!document.getElementById('std-name').value) return alert("Nhập tên em!");
+        document.getElementById('welcome-std').innerText = "Chào " + document.getElementById('std-name').value;
+        showPage('student-home');
+    }
+
+    function showQuizListForStudent() {
+        showPage('display-area');
+        let h = '<h2>Bài kiểm tra của lớp</h2>';
+        db.quizzes.forEach(q => {
+            h += `<div style="padding:15px; border:1px solid #ddd; margin:10px 0; border-radius:8px; display:flex; justify-content:space-between">
+                <span>${q.name}</span>
+                <button onclick="startQuiz(${q.id})">Vào thi</button>
+            </div>`;
+        });
+        document.getElementById('content-body').innerHTML = h;
+    }
+
+    function startQuiz(id) {
+        let quiz = db.quizzes.find(x => x.id === id);
+        let html = `<h3>${quiz.name}</h3>`;
+        quiz.questions.forEach((q, i) => {
+            html += `<div style="margin-bottom:20px">
+                <p><b>Câu ${i+1}: ${q.q}</b></p>
+                ${q.options.map(opt => `<label style="display:block"><input type="radio" name="q${i}" value="${opt}"> ${opt}</label>`).join('')}
+            </div>`;
+        });
+        html += `<button onclick="alert('Tính năng nộp bài đang được xử lý...')">NỘP BÀI</button>`;
+        document.getElementById('content-body').innerHTML = html;
+    }
+</script>
+</body>
+</html>

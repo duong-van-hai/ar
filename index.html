@@ -49,7 +49,7 @@
 
     <div id="teacher-auth" class="hidden">
         <button onclick="showPage('role-page')">← Quay lại</button>
-        <input type="password" id="tea-pass" placeholder="Mật khẩu: 123">
+        <input type="password" id="tea-pass" placeholder="Nhập mật khẩu quản lý">
         <button onclick="loginTeacher()" style="width:100%">XÁC NHẬN</button>
     </div>
 
@@ -96,17 +96,14 @@
 </div>
 
 <script id="embedded-data">
-    // DỮ LIỆU ĐƯỢC ĐÓNG GÓI SẼ NẰM Ở ĐÂY
     var PACKED_DATA = { quizzes: [], theory: "" };
 </script>
 
 <script>
     let db = { theory: PACKED_DATA.theory || "", quizzes: PACKED_DATA.quizzes || [], results: [] };
     
-    // Tải thêm dữ liệu từ LocalStorage nếu có (dành cho giáo viên trên máy chủ)
     let localData = JSON.parse(localStorage.getItem('edu_db_v6'));
     if(localData) {
-        // Hợp nhất dữ liệu đóng gói và dữ liệu máy cục bộ
         db.quizzes = [...db.quizzes, ...localData.quizzes.filter(lq => !db.quizzes.find(pq => pq.id === lq.id))];
         db.results = localData.results || [];
     }
@@ -119,6 +116,7 @@
     }
 
     function loginTeacher() {
+        // Mật khẩu vẫn là 123 nhưng không còn hiện gợi ý ở ô nhập
         if(document.getElementById('tea-pass').value === '123') showPage('teacher-home');
         else alert('Sai mật khẩu!');
     }
@@ -193,11 +191,9 @@
         });
     }
 
-    // CHỨC NĂNG QUAN TRỌNG: ĐÓNG GÓI TOÀN BỘ WEB THÀNH FILE MỚI
     function exportFullApp() {
         const htmlContent = document.documentElement.outerHTML;
         const dataScript = `var PACKED_DATA = ${JSON.stringify({ quizzes: db.quizzes, theory: db.theory })};`;
-        // Thay thế nội dung biến PACKED_DATA trong file mới
         const newHtml = htmlContent.replace(/var PACKED_DATA = \{.*?\};/, dataScript);
         
         const blob = new Blob([newHtml], { type: 'text/html' });
@@ -216,7 +212,7 @@
     function showQuizListForStudent() {
         showPage('display-area');
         let h = '<h2>Bài kiểm tra của em</h2>';
-        if(db.quizzes.length === 0) h += "<p style='color:red'>Chưa có đề nào được đóng gói trong file này!</p>";
+        if(db.quizzes.length === 0) h += "<p style='color:red'>Chưa có đề nào!</p>";
         db.quizzes.forEach(q => {
             const hasDone = db.results.find(r => r.name === document.getElementById('std-name').value && r.quizId === q.id);
             h += `<div class="quiz-item-row"><span>${q.name}</span>`;

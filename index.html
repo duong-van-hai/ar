@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ Thống Kiểm Tra Chuyên Nghiệp v5</title>
+    <title>Hệ Thống Kiểm Tra - Phiên Bản Đóng Gói</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
     <style>
         :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --danger: #e74c3c; --light: #f4f7f6; }
@@ -20,15 +20,13 @@
         .quiz-item-row { background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
         .correct-bg { background: #d4edda; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #28a745; }
         .wrong-bg { background: #f8d7da; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #dc3545; }
-        #upload-msg { padding: 15px; border-radius: 8px; margin-top: 15px; font-weight: bold; text-align: center; }
-        .info-box { background: #eef; padding: 10px; border-radius: 5px; font-size: 0.85em; margin-bottom: 15px; color: #333; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="role-page">
-        <h1 style="text-align:center; color: var(--primary);">HỆ THỐNG KIỂM TRA QUẢN TRỊ CAO CẤP</h1>
+        <h1 style="text-align:center; color: var(--primary);">HỆ THỐNG KIỂM TRA ĐÓNG GÓI</h1>
         <div class="menu-grid">
             <div class="card" onclick="showPage('student-auth')"><h2>👨‍🎓 HỌC SINH</h2></div>
             <div class="card" onclick="showPage('teacher-auth')"><h2>👨‍🏫 GIÁO VIÊN</h2></div>
@@ -37,14 +35,13 @@
 
     <div id="student-auth" class="hidden">
         <button onclick="showPage('role-page')">← Quay lại</button>
-        <input type="text" id="std-name" placeholder="Nhập họ và tên em...">
+        <input type="text" id="std-name" placeholder="Nhập tên em...">
         <button onclick="loginStudent()" style="width:100%">VÀO LỚP</button>
     </div>
 
     <div id="student-home" class="hidden">
         <h2 id="welcome-std"></h2>
         <div class="menu-grid">
-            <div class="card" onclick="showTheory()">📖 Xem Lý Thuyết</div>
             <div class="card" onclick="showQuizListForStudent()">📝 Làm Bài Kiểm Tra</div>
         </div>
         <button onclick="showPage('role-page')" style="background:var(--danger)">Đăng xuất</button>
@@ -57,52 +54,36 @@
     </div>
 
     <div id="teacher-home" class="hidden">
-        <h2>Bảng Điều Khiển Giáo Viên</h2>
+        <h2>Quản Lý Giáo Viên</h2>
         <div class="menu-grid">
-            <button onclick="showTeacherSection('create-theory')">📝 Lý Thuyết</button>
-            <button onclick="showTeacherSection('create-quiz')">➕ Tạo Đề Từ Word</button>
-            <button onclick="manageQuizzes()">📋 Quản Lý Đề</button>
+            <button onclick="showTeacherSection('create-quiz')">➕ Tạo Đề Mới</button>
+            <button onclick="manageQuizzes()">📋 Quản Lý & Xuất File</button>
             <button onclick="showResults()">📊 Xem Điểm</button>
-        </div>
-        
-        <div id="create-theory" class="teacher-sec hidden">
-            <textarea id="theory-content" rows="10"></textarea>
-            <button onclick="saveTheory()">Lưu lý thuyết</button>
         </div>
 
         <div id="create-quiz" class="teacher-sec hidden">
-            <h3>Cấu hình bài kiểm tra mới</h3>
-            <div class="info-box">
-                <b>Quy tắc:</b> File Word mỗi câu 5 dòng. Đáp án đúng có dấu <b>#</b> ở đầu hoặc <u>gạch chân</u>.
-            </div>
-            
-            <input type="text" id="quiz-name-input" placeholder="Tên bài kiểm tra (VD: Giữa kỳ I)">
-            
-            <label>Thời gian làm bài:</label>
+            <h3>Cấu hình bài thi</h3>
+            <input type="text" id="quiz-name-input" placeholder="Tên bài thi">
             <select id="duration-input">
-                <option value="15">15 Phút</option>
-                <option value="20">20 Phút</option>
-                <option value="45">45 Phút</option>
-                <option value="90">90 Phút</option>
+                <option value="15">15 Phút</option><option value="45">45 Phút</option>
             </select>
-
-            <label>Số câu hỏi trích ra từ file (để trống nếu lấy tất cả):</label>
-            <input type="number" id="limit-input" placeholder="Ví dụ: File có 50 câu, chỉ lấy 10 câu ngẫu nhiên">
-
-            <label>Chế độ làm bài:</label>
+            <input type="number" id="limit-input" placeholder="Số câu trích ngẫu nhiên (để trống nếu lấy hết)">
             <select id="attempt-mode-input">
-                <option value="multiple">Làm nhiều lần (Tự do ôn tập)</option>
-                <option value="once">Chỉ làm 1 lần duy nhất (Thi chính thức)</option>
+                <option value="multiple">Làm nhiều lần</option>
+                <option value="once">Chỉ làm 1 lần</option>
             </select>
-
             <input type="file" id="file-input" accept=".docx">
-            <button id="upload-btn" onclick="processUpload()" style="background: var(--success); width: 100%; font-size: 1.1em;">TẠO BÀI KIỂM TRA</button>
-            <div id="upload-msg"></div>
+            <button onclick="processUpload()" style="background: var(--success); width: 100%;">LƯU ĐỀ VÀO MÁY</button>
+            <div id="upload-msg" style="margin-top:10px; font-weight:bold; text-align:center;"></div>
         </div>
 
         <div id="quiz-manager-view" class="teacher-sec hidden">
             <div id="quiz-list-container"></div>
+            <hr>
+            <button onclick="exportFullApp()" style="background:#8e44ad; width:100%; padding:15px;">💾 XUẤT FILE GỬI CHO HỌC SINH (CÓ SẴN ĐỀ)</button>
+            <p style="font-size:0.8em; color:red; text-align:center;">* Sau khi nhập đề, bạn phải bấm nút này để tạo file gửi cho học sinh làm bài từ xa.</p>
         </div>
+        
         <div id="results-view" class="teacher-sec hidden"></div>
         <br><button onclick="showPage('role-page')" style="background:var(--danger)">Đăng xuất</button>
     </div>
@@ -114,10 +95,23 @@
     </div>
 </div>
 
+<script id="embedded-data">
+    // DỮ LIỆU ĐƯỢC ĐÓNG GÓI SẼ NẰM Ở ĐÂY
+    var PACKED_DATA = { quizzes: [], theory: "" };
+</script>
+
 <script>
-    // Dữ liệu bộ nhớ (v5)
-    let db = JSON.parse(localStorage.getItem('edu_db_v5')) || { theory: "", quizzes: [], results: [] };
-    function saveDB() { localStorage.setItem('edu_db_v5', JSON.stringify(db)); }
+    let db = { theory: PACKED_DATA.theory || "", quizzes: PACKED_DATA.quizzes || [], results: [] };
+    
+    // Tải thêm dữ liệu từ LocalStorage nếu có (dành cho giáo viên trên máy chủ)
+    let localData = JSON.parse(localStorage.getItem('edu_db_v6'));
+    if(localData) {
+        // Hợp nhất dữ liệu đóng gói và dữ liệu máy cục bộ
+        db.quizzes = [...db.quizzes, ...localData.quizzes.filter(lq => !db.quizzes.find(pq => pq.id === lq.id))];
+        db.results = localData.results || [];
+    }
+
+    function saveDB() { localStorage.setItem('edu_db_v6', JSON.stringify(db)); }
 
     function showPage(id) {
         document.querySelectorAll('.container > div').forEach(div => div.classList.add('hidden'));
@@ -143,7 +137,6 @@
         return b;
     }
 
-    // --- LOGIC XỬ LÝ FILE WORD & TRÍCH XUẤT NGẪU NHIÊN ---
     function processUpload() {
         const name = document.getElementById('quiz-name-input').value;
         const file = document.getElementById('file-input').files[0];
@@ -152,28 +145,24 @@
         const attemptMode = document.getElementById('attempt-mode-input').value;
         const msg = document.getElementById('upload-msg');
 
-        if (!name || !file) { alert("Thiếu tên bài hoặc file!"); return; }
-
-        msg.style.background = "#eee";
-        msg.innerHTML = "🔄 Đang xử lý ngân hàng câu hỏi...";
+        if (!name || !file) { alert("Thiếu tên hoặc file!"); return; }
 
         const reader = new FileReader();
         reader.onload = function(event) {
-            mammoth.convertToHtml({arrayBuffer: event.target.result})
-            .then(function(result) {
+            mammoth.convertToHtml({arrayBuffer: event.target.result}).then(function(result) {
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = result.value;
                 const paras = Array.from(tempDiv.querySelectorAll('p, li')).map(p => ({
                     html: p.innerHTML.trim(), text: p.innerText.trim()
                 })).filter(item => item.text !== "");
 
-                let allQuestions = [];
+                let allQs = [];
                 for (let i = 0; i < paras.length; i += 5) {
                     if (paras[i+4]) {
                         const lines = [paras[i+1], paras[i+2], paras[i+3], paras[i+4]];
                         let correctIdx = lines.findIndex(l => l.text.startsWith('#') || l.html.includes('<u>') || l.html.includes('<strong>'));
                         if (correctIdx !== -1) {
-                            allQuestions.push({
+                            allQs.push({
                                 q: paras[i].text,
                                 options: lines.map(l => l.text.replace(/^#/, '').trim()),
                                 answer: lines[correctIdx].text.replace(/^#/, '').trim()
@@ -182,27 +171,13 @@
                     }
                 }
 
-                if (allQuestions.length > 0) {
-                    // Xáo trộn ngân hàng câu hỏi trước khi cắt lấy số lượng yêu cầu
-                    let finalQuestions = shuffle(allQuestions);
-                    if (limit > 0 && limit < finalQuestions.length) {
-                        finalQuestions = finalQuestions.slice(0, limit);
-                    }
+                if (allQs.length > 0) {
+                    let finalQs = shuffle(allQs);
+                    if (limit > 0) finalQs = finalQs.slice(0, limit);
 
-                    db.quizzes.push({
-                        id: Date.now(),
-                        name: name,
-                        questions: finalQuestions,
-                        duration: duration,
-                        attemptMode: attemptMode // 'once' hoặc 'multiple'
-                    });
+                    db.quizzes.push({ id: Date.now(), name: name, questions: finalQs, duration: duration, attemptMode: attemptMode });
                     saveDB();
-                    msg.style.background = "#d4edda";
-                    msg.innerHTML = `✅ Thành công! Đã lấy ngẫu nhiên ${finalQuestions.length}/${allQuestions.length} câu từ file. Chế độ: ${attemptMode === 'once' ? '1 lần' : 'Tự do'}.`;
-                    document.getElementById('file-input').value = "";
-                } else {
-                    msg.style.background = "#f8d7da";
-                    msg.innerHTML = "❌ Không tìm thấy câu hỏi hợp lệ.";
+                    msg.innerHTML = "✅ Đã lưu đề vào máy này!";
                 }
             });
         };
@@ -212,20 +187,28 @@
     function manageQuizzes() {
         showTeacherSection('quiz-manager-view');
         const container = document.getElementById('quiz-list-container');
-        container.innerHTML = "<h3>Danh sách bài đã tạo</h3>";
+        container.innerHTML = "<h3>Đề đã nạp:</h3>";
         db.quizzes.forEach((q, i) => {
-            container.innerHTML += `<div class="quiz-item-row">
-                <span><b>${q.name}</b> (${q.questions.length} câu - ${q.attemptMode === 'once' ? '1 lần' : 'Tự do'})</span>
-                <button onclick="if(confirm('Xóa?')){db.quizzes.splice(${i},1);saveDB();manageQuizzes();}" style="background:red">Xóa</button>
-            </div>`;
+            container.innerHTML += `<div class="quiz-item-row"><span>${q.name} (${q.questions.length} câu)</span><button onclick="db.quizzes.splice(${i},1);saveDB();manageQuizzes();" style="background:red">Xóa</button></div>`;
         });
     }
 
-    // --- LOGIC HỌC SINH (GIỚI HẠN LẦN LÀM) ---
-    let sQs = [], sQuiz = null, sTimer;
+    // CHỨC NĂNG QUAN TRỌNG: ĐÓNG GÓI TOÀN BỘ WEB THÀNH FILE MỚI
+    function exportFullApp() {
+        const htmlContent = document.documentElement.outerHTML;
+        const dataScript = `var PACKED_DATA = ${JSON.stringify({ quizzes: db.quizzes, theory: db.theory })};`;
+        // Thay thế nội dung biến PACKED_DATA trong file mới
+        const newHtml = htmlContent.replace(/var PACKED_DATA = \{.*?\};/, dataScript);
+        
+        const blob = new Blob([newHtml], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'BaiKiemTra_DaDongGoi.html';
+        a.click();
+    }
 
     function loginStudent() {
-        if(!document.getElementById('std-name').value) return alert("Em hãy nhập tên!");
+        if(!document.getElementById('std-name').value) return alert("Nhập tên!");
         showPage('student-home');
         document.getElementById('welcome-std').innerText = "Học sinh: " + document.getElementById('std-name').value;
     }
@@ -233,20 +216,12 @@
     function showQuizListForStudent() {
         showPage('display-area');
         let h = '<h2>Bài kiểm tra của em</h2>';
-        const stdName = document.getElementById('std-name').value;
-
+        if(db.quizzes.length === 0) h += "<p style='color:red'>Chưa có đề nào được đóng gói trong file này!</p>";
         db.quizzes.forEach(q => {
-            // Kiểm tra xem đã làm chưa nếu bài thi quy định 1 lần
-            const hasDone = db.results.find(r => r.name === stdName && r.quizId === q.id);
-            
-            h += `<div class="quiz-item-row">
-                <span>${q.name} (${q.questions.length} câu)</span>`;
-            
-            if (q.attemptMode === 'once' && hasDone) {
-                h += `<span style="color:red; font-style:italic">Đã hoàn thành</span>`;
-            } else {
-                h += `<button onclick="setupQuiz(${q.id})">Vào làm bài</button>`;
-            }
+            const hasDone = db.results.find(r => r.name === document.getElementById('std-name').value && r.quizId === q.id);
+            h += `<div class="quiz-item-row"><span>${q.name}</span>`;
+            if (q.attemptMode === 'once' && hasDone) h += `<span style="color:red">Đã làm</span>`;
+            else h += `<button onclick="setupQuiz(${q.id})">Vào thi</button>`;
             h += `</div>`;
         });
         document.getElementById('content-body').innerHTML = h;
@@ -254,28 +229,23 @@
 
     function setupQuiz(id) {
         sQuiz = db.quizzes.find(q => q.id === id);
-        // Trộn câu hỏi và đáp án cho mỗi lần làm để chống gian lận
         sQs = shuffle(sQuiz.questions).map(q => ({ ...q, options: shuffle(q.options) }));
-        
-        const timerEl = document.getElementById('quiz-timer');
-        timerEl.classList.remove('hidden');
-        
+        document.getElementById('quiz-timer').classList.remove('hidden');
         let html = `<h3>${sQuiz.name}</h3>`;
         sQs.forEach((q, i) => {
-            html += `<div style="margin-bottom:20px; padding:20px; border:1px solid #ddd; border-radius:10px; background:#fff">
+            html += `<div style="margin-bottom:20px; padding:15px; border:1px solid #ddd; border-radius:10px; background:#fff">
                 <p><strong>Câu ${i+1}: ${q.q}</strong></p>
-                ${q.options.map(opt => `<label style="display:block; margin:10px 0; cursor:pointer"><input type="radio" name="sq${i}" value="${opt}"> ${opt}</label>`).join('')}
+                ${q.options.map(opt => `<label style="display:block; margin:8px 0"><input type="radio" name="sq${i}" value="${opt}"> ${opt}</label>`).join('')}
             </div>`;
         });
-        html += `<button onclick="submitQuiz()" style="background:var(--success); width:100%; padding:18px; font-size:1.2em">NỘP BÀI</button>`;
+        html += `<button onclick="submitQuiz()" style="background:var(--success); width:100%; padding:15px">NỘP BÀI</button>`;
         document.getElementById('content-body').innerHTML = html;
-
         let time = sQuiz.duration * 60;
         sTimer = setInterval(() => {
             time--;
             let m = Math.floor(time/60), s = time%60;
-            timerEl.innerText = `${m}:${s<10?'0':''}${s}`;
-            if(time<=0) { alert("Hết giờ!"); submitQuiz(); }
+            document.getElementById('quiz-timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(time<=0) submitQuiz();
         }, 1000);
     }
 
@@ -283,50 +253,23 @@
         clearInterval(sTimer);
         document.getElementById('quiz-timer').classList.add('hidden');
         let count = 0;
-        let review = '<h3>Chi tiết bài làm:</h3>';
         sQs.forEach((q, i) => {
             const sel = document.querySelector(`input[name="sq${i}"]:checked`);
-            const uAns = sel ? sel.value : "Chưa trả lời";
-            const isOk = uAns === q.answer;
-            if(isOk) count++;
-            review += `<div class="${isOk?'correct-bg':'wrong-bg'}">
-                <p><b>Câu ${i+1}: ${q.q}</b></p>
-                <p>Em chọn: ${uAns} | Đáp án đúng: ${q.answer}</p>
-            </div>`;
+            if(sel && sel.value === q.answer) count++;
         });
-        const finalScore = (count/sQs.length*10).toFixed(1);
-        
-        // Lưu kết quả kèm ID bài thi để quản lý lần làm
-        db.results.push({ 
-            quizId: sQuiz.id,
-            name: document.getElementById('std-name').value, 
-            quiz: sQuiz.name, 
-            score: finalScore, 
-            date: new Date().toLocaleString() 
-        });
+        const score = (count/sQs.length*10).toFixed(1);
+        db.results.push({ quizId: sQuiz.id, name: document.getElementById('std-name').value, quiz: sQuiz.name, score: score, date: new Date().toLocaleString() });
         saveDB();
-
-        document.getElementById('content-body').innerHTML = `
-            <div style="text-align:center; padding:20px; background:#fff; border-radius:10px; margin-bottom:20px">
-                <h1 style="color:var(--secondary); margin:0">KẾT QUẢ: ${finalScore} ĐIỂM</h1>
-                <p>Số câu đúng: ${count}/${sQs.length}</p>
-                <button onclick="showQuizListForStudent()" style="background:var(--primary)">Quay lại danh sách</button>
-            </div>` + review;
-    }
-
-    function showTheory() {
-        showPage('display-area');
-        document.getElementById('content-body').innerHTML = `<h2>Lý thuyết học tập</h2><div style="white-space:pre-wrap; background:white; padding:20px; border-radius:10px">${db.theory || "Chưa có nội dung."}</div>`;
+        document.getElementById('content-body').innerHTML = `<h2 style="text-align:center">KẾT QUẢ: ${score} ĐIỂM</h2><button onclick="showQuizListForStudent()">Quay lại</button>`;
     }
 
     function showResults() {
         showTeacherSection('results-view');
-        let h = '<h3>Bảng điểm học sinh</h3><table><tr><th>Tên</th><th>Bài</th><th>Điểm</th><th>Ngày nộp</th></tr>';
-        db.results.slice().reverse().forEach(r => h += `<tr><td>${r.name}</td><td>${r.quiz}</td><td><b style="color:blue">${r.score}</b></td><td>${r.date}</td></tr>`);
+        let h = '<table><tr><th>Tên</th><th>Bài</th><th>Điểm</th></tr>';
+        db.results.slice().reverse().forEach(r => h += `<tr><td>${r.name}</td><td>${r.quiz}</td><td>${r.score}</td></tr>`);
         document.getElementById('results-view').innerHTML = h + '</table>';
     }
     
-    function saveTheory() { db.theory = document.getElementById('theory-content').value; saveDB(); alert("Đã lưu!"); }
     function exitContent() { clearInterval(sTimer); document.getElementById('quiz-timer').classList.add('hidden'); showPage('student-home'); }
 </script>
 </body>

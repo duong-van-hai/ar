@@ -9,14 +9,14 @@
         body { font-family: sans-serif; background: var(--bg); line-height: 1.6; padding: 10px; }
         .container { max-width: 650px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h1 { text-align: center; color: var(--blue); margin-bottom: 25px; }
-        .input-group { margin-bottom: 30px; position: sticky; top: 0; background: white; padding: 10px 0; z-index: 100; border-bottom: 1px solid #eee; }
+        .sticky-header { position: sticky; top: 0; background: white; padding: 10px 0; z-index: 100; border-bottom: 2px solid var(--blue); margin-bottom: 20px; }
         input[type="text"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1.1rem; }
         .quiz-item { margin-bottom: 30px; padding: 15px; border: 1px solid #eee; border-radius: 10px; }
         .question { font-weight: bold; margin-bottom: 12px; color: #202124; }
-        label { display: block; padding: 12px; margin: 8px 0; background: #f8f9fa; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+        label { display: block; padding: 12px; margin: 8px 0; background: #f8f9fa; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: 0.2s; }
         label:hover { background: #e8f0fe; border-color: var(--blue); }
         input[type="radio"] { margin-right: 12px; transform: scale(1.2); }
-        .btn-submit { width: 100%; padding: 16px; background: var(--blue); color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-submit { width: 100%; padding: 16px; background: var(--blue); color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px; }
         .btn-submit:hover { background: #1557b0; }
         #result { margin-top: 20px; padding: 30px; text-align: center; border-radius: 12px; display: none; background: #fff; border: 2px solid var(--blue); }
         .score { font-size: 3rem; color: #d93025; font-weight: bold; margin: 15px 0; }
@@ -27,84 +27,112 @@
 <div class="container" id="quiz-app">
     <h1>KIỂM TRA CÔNG NGHỆ</h1>
     
-    <div class="input-group">
-        <input type="text" id="std-name" placeholder="BẮT BUỘC: Nhập Họ tên trước khi làm bài...">
+    <div class="sticky-header">
+        <input type="text" id="std-name" placeholder="NHẬP HỌ TÊN ĐỂ HIỆN ĐỀ THI...">
     </div>
 
-    <div id="quiz-content"></div>
+    <div id="quiz-content">
+        <p style="text-align:center; color:#666;">Vui lòng nhập tên ở trên để bắt đầu làm bài.</p>
+    </div>
 
-    <button class="btn-submit" onclick="submitQuiz()">NỘP BÀI KIỂM TRA</button>
+    <button id="submit-btn" class="btn-submit" onclick="submitQuiz()" style="display:none;">NỘP BÀI KIỂM TRA</button>
 </div>
 
 <div class="container" id="result"></div>
 
 <script>
-    // Ngân hàng 36 câu hỏi tổng hợp 
+    // Ngân hàng 36 câu hỏi tổng hợp từ 2 đề 
     const bank = [
+        // Nhóm câu hỏi Lớp 10 [cite: 1, 6, 11, 16, 19, 21, 23, 28, 33, 35, 37, 39]
         { q: "Công nghệ là gì?", options: ["Tri thức khoa học", "Thiết kế máy móc", "Giải pháp, quy trình, bí quyết kĩ thuật", "Thúc đẩy khoa học"], a: "Giải pháp, quy trình, bí quyết kĩ thuật" },
-        { q: "Cấu trúc hệ thống kĩ thuật gồm?", options: ["Đầu vào, ra, hồi tiếp", "Đầu vào, ra, xử lí", "Đầu vào, ra, điều khiển", "Đầu vào, ra, lưu trữ"], a: "Đầu vào, ra, xử lí" },
-        { q: "Biến đổi điện năng thành cơ năng là công nghệ?", options: ["Điện – điện tử", "Điện – cơ", "Tự động hóa", "Điện – quang"], a: "Điện – cơ" },
-        { q: "Công nghệ AI là viết tắt của?", options: ["Trí tuệ nhân tạo", "Internet vạn vật", "Robot thông minh", "In 3D"], a: "Trí tuệ nhân tạo" },
-        { q: "Chế tạo bằng cách đắp lớp vật liệu là?", options: ["Luyện kim", "Gia công áp lực", "Nano", "In 3D"], a: "In 3D" },
-        { q: "Sản phẩm đặc trưng Cách mạng 4.0?", options: ["Máy tính", "Robot thông minh", "Máy hơi nước", "Bóng đèn"], a: "Robot thông minh" },
-        { q: "Ngành nghề nào thuộc ngành cơ khí?", options: ["Lắp đặt điện", "Sửa chữa, cơ khí chế tạo", "Hệ thống điện", "Điện mặt trời"], a: "Sửa chữa, cơ khí chế tạo" },
-        { q: "Khổ giấy chính bản vẽ kĩ thuật có?", options: ["3 loại", "4 loại", "5 loại", "7 loại"], a: "5 loại" },
-        { q: "Nét liền mảnh dùng để vẽ?", options: ["Đường gióng kích thước", "Đường bao thấy", "Đường tâm", "Đường trục"], a: "Đường gióng kích thước" },
-        { q: "Hình cắt toàn bộ biểu diễn cấu tạo?", options: ["Bên ngoài", "Bên trong", "Khuất", "Mặt cắt chập"], a: "Bên trong" },
-        { q: "Sản phẩm cơ khí trong giao thông là?", options: ["Máy MRI", "Tưới tự động", "Động cơ ô tô, xe máy", "Máy xay lúa"], a: "Động cơ ô tô, xe máy" },
-        { q: "Người trực tiếp lắp động cơ ô tô là?", options: ["Công nhân lắp ráp", "Giám đốc", "Kỹ sư", "Nhân viên bảo vệ"], a: "Công nhân lắp ráp" },
-        { q: "Tính chịu ăn mòn thuộc tính chất?", options: ["Vật lý", "Cơ học", "Hóa học", "Công nghệ"], a: "Hóa học" },
-        { q: "Vật liệu ghi nhớ hình dạng ban đầu là?", options: ["Nano", "Hợp kim nhớ hình", "Thép", "Gang"], a: "Hợp kim nhớ hình" },
-        { q: "Phương pháp gia công có phoi là?", options: ["Đúc", "Tiện", "Rèn", "Hàn"], a: "Tiện" },
-        { q: "Bước xử lý bảo vệ bề mặt gồm?", options: ["Tiện, phay", "Đúc, rèn", "Sơn, mạ, phủ hóa chất", "Lắp ráp"], a: "Sơn, mạ, phủ hóa chất" },
-        { q: "Robot xếp thùng lên pallet là công đoạn?", options: ["Gia công", "Lắp ráp", "Kiểm tra", "Vận chuyển và xếp dỡ"], a: "Vận chuyển và xếp dỡ" },
-        { q: "Gang có hàm lượng carbon?", options: ["Dưới 2.14%", "Trên 2.14%", "Dưới 0.8%", "Trên 6.67%"], a: "Trên 2.14%" },
-        { q: "Máy hơi nước thuộc Cách mạng CN lần?", options: ["1", "2", "3", "4"], a: "1" },
-        { q: "Khổ giấy A4 kích thước?", options: ["210x297", "297x420", "420x594", "594x841"], a: "210x297" },
-        { q: "Năng lượng biến đổi là thành phần?", options: ["Đầu vào", "Đầu ra", "Xử lý", "Hồi tiếp"], a: "Đầu ra" },
+        { q: "Cấu trúc hệ thống kĩ thuật gồm?", options: ["Đầu vào, ra, hồi tiếp", "Đầu vào, ra, xử lí", "Đầu vào, ra, điều khiển", "Đầu vào, ra, lưu trữ"], a: "Đầu vào, đầu ra và bộ phận xử lí." },
+        { q: "Biến đổi điện năng thành cơ năng là công nghệ?", options: ["Điện – điện tử", "Điện – cơ", "Tự động hóa", "Điện – quang"], a: "Công nghệ điện – cơ." },
+        { q: "Công nghệ AI là viết tắt của?", options: ["Trí tuệ nhân tạo", "Internet vạn vật", "Robot thông minh", "In 3D"], a: "Công nghệ trí tuệ nhân tạo." },
+        { q: "Chế tạo bằng cách đắp lớp vật liệu là?", options: ["Luyện kim", "Gia công áp lực", "Nano", "In 3D"], a: "Công nghệ in 3D" },
+        { q: "Sản phẩm đặc trưng Cách mạng 4.0?", options: ["Máy tính", "Robot thông minh", "Máy hơi nước", "Bóng đèn"], a: "Robot thông minh." },
+        { q: "Ngành nghề nào thuộc ngành cơ khí?", options: ["Lắp đặt điện", "Sửa chữa, cơ khí chế tạo", "Hệ thống điện", "Điện mặt trời"], a: "Sửa chữa, cơ khí chế tạo." },
+        { q: "Nghề nghiệp trong lĩnh vực nào có xu hướng tăng?", options: ["Nông nghiệp", "Thủ công", "Công nghiệp, thợ lắp ráp, vận hành", "Dịch vụ tự do"], a: "Công nghiệp, thợ lắp ráp, vận hành máy móc thiết bị." },
+        { q: "Khổ giấy chính bản vẽ kĩ thuật có?", options: ["3 loại", "4 loại", "5 loại", "7 loại"], a: "5" },
+        { q: "Nét liền mảnh dùng để vẽ?", options: ["Đường gióng kích thước", "Đường bao thấy", "Đường tâm", "Đường trục"], a: "Nét liền mảnh." },
+        { q: "Hình cắt toàn bộ biểu diễn cấu tạo?", options: ["Bên ngoài", "Bên trong", "Khuất", "Mặt cắt chập"], a: "Hình cắt toàn bộ." },
+        { q: "Cặp hình chiếu trục đo biểu diễn cùng vật thể là?", options: ["(1)-(2)", "(1)-(6); (3)-(5); (4)-(7)", "(2)-(5)", "(3)-(4)"], a: "(1)-(6); (3) - (5); (4) - (7)." },
+
+        // Nhóm câu hỏi Lớp 11 [cite: 43, 45, 47, 49, 51, 53, 55, 57, 59, 64, 66, 71]
+        { q: "Vai trò cơ khí trong giao thông là?", options: ["Máy MRI", "Tưới tự động", "Động cơ ô tô, xe máy", "Máy xay lúa"], a: "Động cơ ô tô, xe máy." },
+        { q: "Ai trực tiếp lắp động cơ ô tô?", options: ["Công nhân lắp ráp cơ khí", "Giám đốc", "Kỹ sư", "Bảo vệ"], a: "Công nhân lắp ráp cơ khí." },
+        { q: "Tính chịu ăn mòn thuộc tính chất?", options: ["Vật lý", "Cơ học", "Hóa học", "Công nghệ"], a: "tính chịu ăn mòn." },
+        { q: "Chống lại biến dạng dẻo hoặc phá hủy là?", options: ["Tính dẫn nhiệt", "Tính đúc", "Độ bền", "Khối lượng riêng"], a: "Độ bền (tính bền)." },
+        { q: "Vật liệu ghi nhớ hình dạng ban đầu là?", options: ["Nano", "Hợp kim nhớ hình", "Thép", "Gang"], a: "Hợp kim nhớ hình." },
+        { q: "Gia công có phoi là phương pháp?", options: ["Đúc", "Tiện", "Rèn", "Hàn"], a: "Tiện." },
+        { q: "Ưu điểm của phương pháp hàn là?", options: ["Kém bền", "Hở", "Dễ cong", "Tiết kiệm kim loại"], a: "Tiết kiệm kim loại." },
+        { q: "Chi tiết gắn dao trên máy tiện là?", options: ["Mâm cặp", "Ụ động", "Bàn gá dao", "Hộp tốc độ"], a: "bàn gá dao." },
+        { q: "Trình tự sản xuất cơ khí đúng là?", options: ["Phôi-Gia công-Xử lý-Lắp ráp-Đóng gói", "Gia công-Phôi-Lắp ráp", "Lắp ráp-Đóng gói-Gia công", "Phôi-Lắp ráp-Gia công"], a: "Chế tạo phôi  Gia công  xử lí và bảo vệ  lắp ráp  đóng gói." },
+        { q: "Xử lý bề mặt bao gồm hoạt động?", options: ["Tiện, phay", "Đúc, rèn", "Sơn, mạ, phủ hóa chất", "Lắp bu lông"], a: "Sơn, mạ, phủ hóa chất chống ăn mòn." },
+        { q: "Đặc điểm nổi bật của Robot công nghiệp?", options: ["Suy nghĩ như người", "Làm theo chương trình lập sẵn", "Tốc độ ánh sáng", "Tự sửa chữa"], a: "Thực hiện các thao tác theo chương trình được lập trình sẵn." },
+        { q: "Xếp thùng carton lên pallet là công đoạn?", options: ["Gia công", "Lắp ráp", "Kiểm tra", "Vận chuyển và xếp dỡ"], a: "Vận chuyển và xếp dỡ." },
+        
+        // Thêm các câu hỏi bổ sung dựa trên nội dung đề 
+        { q: "Năng lượng đã biến đổi là thành phần nào?", options: ["Đầu vào", "Đầu ra", "Xử lý", "Hồi tiếp"], a: "Đầu ra" },
         { q: "IoT giúp kết nối thiết bị qua?", options: ["Dây dẫn", "Mạng Internet", "Sóng âm", "Thủ công"], a: "Mạng Internet" },
         { q: "Tỉ lệ 1:2 là loại tỉ lệ?", options: ["Phóng to", "Thu nhỏ", "Nguyên hình", "Tự do"], a: "Thu nhỏ" },
-        { q: "Tính chất chống ngoại lực phá hủy gọi là?", options: ["Tính dẫn điện", "Độ bền", "Tính đúc", "Tính dẻo"], a: "Độ bền" },
-        { q: "Chuyển động chính khi tiện là?", options: ["Phôi quay tròn", "Dao tịnh tiến", "Dao quay tròn", "Bàn máy lên xuống"], a: "Phôi quay tròn" },
-        { q: "Vật liệu siêu nhẹ, bền cao dùng hàng không là?", options: ["Thép", "Đồng", "Nhôm và hợp kim nhôm", "Chì"], a: "Nhôm và hợp kim nhôm" },
-        { q: "Đúc là phương pháp chế tạo phôi bằng?", options: ["Rót kim loại lỏng vào khuôn", "Đập bằng búa", "Cắt gọt", "Nối bằng điện"], a: "Rót kim loại lỏng vào khuôn" },
-        { q: "Rèn thuộc công nghệ gia công?", options: ["Cắt gọt", "Áp lực", "Đúc", "Hàn"], a: "Áp lực" },
-        { q: "Bản vẽ có tỉ lệ 2:1 là tỉ lệ?", options: ["Thu nhỏ", "Nguyên hình", "Phóng to", "Tùy ý"], a: "Phóng to" },
-        { q: "Nét liền đậm vẽ đường nào?", options: ["Bao thấy", "Bao khuất", "Tâm", "Kích thước"], a: "Bao thấy" },
-        { q: "Robot thực hiện thao tác theo?", options: ["Cảm xúc", "Chương trình lập sẵn", "Tự do", "Ánh sáng"], a: "Chương trình lập sẵn" },
+        { q: "Nét liền đậm vẽ đường nào?", options: ["Bao thấy", "Bao khuất", "Tâm", "Kích thước"], a: "Nét liền đậm." },
         { q: "Gang trắng dùng để luyện?", options: ["Đồng", "Thép", "Nhôm", "Kẽm"], a: "Thép" },
-        { q: "Tính chất đặc trưng của AI là?", options: ["Mô phỏng trí tuệ con người", "Kết nối vạn vật", "Sản xuất phôi", "In vật thể"], a: "Mô phỏng trí tuệ con người" },
         { q: "Tiện, Phay, Bào thuộc nhóm gia công?", options: ["Không phoi", "Có phoi", "Áp lực", "Hóa học"], a: "Có phoi" },
-        { q: "Mối hàn tiết kiệm kim loại hơn?", options: ["Ghép bu lông", "Đúc", "Rèn", "Dán"], a: "Ghép bu lông" },
-        { q: "Ai thiết kế hệ thống điều khiển?", options: ["Kỹ sư", "Công nhân", "Nhân viên bảo vệ", "Lễ tân"], a: "Kỹ sư" }
+        { q: "Máy hơi nước thuộc Cách mạng lần?", options: ["1", "2", "3", "4"], a: "1" },
+        { q: "Kích thước khổ giấy A4?", options: ["210x297", "297x420", "420x594", "594x841"], a: "210x297" },
+        { q: "Hợp kim của sắt và carbon là?", options: ["Đồng", "Nhôm", "Thép và gang", "Chì"], a: "Thép và gang" },
+        { q: "Đúc là phương pháp chế tạo phôi bằng?", options: ["Rót lỏng vào khuôn", "Đập búa", "Cắt gọt", "Nối điện"], a: "Rót lỏng vào khuôn" },
+        { q: "Rèn thuộc gia công?", options: ["Cắt gọt", "Áp lực", "Đúc", "Hàn"], a: "Áp lực" },
+        { q: "AI mô phỏng trí tuệ của?", options: ["Máy móc", "Con người", "Robot", "Động vật"], a: "Con người" }
     ];
 
-    // Trộn và lấy 20 câu
+    // Lấy ngẫu nhiên 20 câu
     const questions = bank.sort(() => 0.5 - Math.random()).slice(0, 20);
 
+    const nameInput = document.getElementById('std-name');
     const display = document.getElementById('quiz-content');
-    questions.forEach((item, i) => {
-        let opts = [...item.options].sort(() => 0.5 - Math.random());
-        let html = `<div class="quiz-item">
-            <div class="question">Câu ${i+1}: ${item.q}</div>
-            ${opts.map(opt => `<label><input type="radio" name="q${i}" value="${opt}"> ${opt}</label>`).join('')}
-        </div>`;
-        display.innerHTML += html;
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Sự kiện nhập tên để hiện đề
+    nameInput.addEventListener('input', function() {
+        if (this.value.trim().length >= 2) {
+            renderQuiz();
+            submitBtn.style.display = 'block';
+        } else {
+            display.innerHTML = '<p style="text-align:center; color:#666;">Vui lòng nhập tên ở trên để bắt đầu làm bài.</p>';
+            submitBtn.style.display = 'none';
+        }
     });
 
-    function submitQuiz() {
-        const name = document.getElementById('std-name').value.trim();
-        if (!name) {
-            alert("EM CHƯA NHẬP TÊN! Vui lòng nhập tên trước khi nộp bài.");
-            window.scrollTo(0,0);
-            return;
-        }
+    function renderQuiz() {
+        display.innerHTML = '';
+        questions.forEach((item, i) => {
+            let opts = [...item.options].sort(() => 0.5 - Math.random());
+            let html = `<div class="quiz-item">
+                <div class="question">Câu ${i+1}: ${item.q}</div>
+                ${opts.map(opt => `<label><input type="radio" name="q${i}" value="${opt}"> ${opt}</label>`).join('')}
+            </div>`;
+            display.innerHTML += html;
+        });
+    }
 
+    function submitQuiz() {
+        const name = nameInput.value.trim();
         let score = 0;
+        let unanswered = false;
+
         questions.forEach((item, i) => {
             const sel = document.querySelector(`input[name="q${i}"]:checked`);
-            if (sel && sel.value === item.a) score++;
+            if (sel) {
+                if (sel.value === item.a) score++;
+            } else {
+                unanswered = true;
+            }
         });
+
+        if (unanswered) {
+            if (!confirm("Bạn còn câu hỏi chưa trả lời. Vẫn muốn nộp bài?")) return;
+        }
 
         const finalScore = (score / questions.length * 10).toFixed(1);
         document.getElementById('quiz-app').style.display = 'none';

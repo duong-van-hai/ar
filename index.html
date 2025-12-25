@@ -3,21 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Bubble Pop Game</title>
+    <title>AR Bubble Game - White Mode</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
     
     <style>
-        body { margin: 0; overflow: hidden; background: #000; }
+        body { margin: 0; overflow: hidden; background: #ffffff; }
         #ui {
-            position: absolute; top: 20px; left: 20px; color: white;
-            font-family: 'Segoe UI', sans-serif; z-index: 10; pointer-events: none;
+            position: absolute; top: 20px; left: 20px; color: #333;
+            font-family: sans-serif; z-index: 10; pointer-events: none;
         }
-        .stat { font-size: 24px; font-weight: bold; text-shadow: 2px 2px #000; margin-bottom: 5px; }
-        #guide {
-            position: absolute; bottom: 20px; width: 100%; text-align: center;
-            color: white; font-family: sans-serif; z-index: 10; font-size: 18px;
+        .stat { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+        
+        /* Video camera ẩn đi nhưng vẫn hoạt động */
+        #input_video { display: none; }
+        
+        /* Canvas hiển thị xương tay nằm đè lên trên */
+        #output_canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 5;
+            pointer-events: none; /* Để không chặn click vào game */
+            transform: scaleX(-1); /* Lật gương cho tự nhiên */
+        }
+        
+        a-scene {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1;
         }
     </style>
 </head>
@@ -27,124 +44,98 @@
         <div class="stat">Điểm: <span id="score">0</span></div>
         <div class="stat">Cấp độ: <span id="level">1</span></div>
     </div>
-    <div id="guide">Dùng ngón trỏ chạm ngón cái để nổ bóng!</div>
 
-    <a-scene physx="auto: true" vr-mode-ui="enabled: false">
+    <video id="input_video"></video>
+    <canvas id="output_canvas"></canvas>
+
+    <a-scene vr-mode-ui="enabled: false" embedded style="background: white;">
+        <a-sky color="#ffffff"></a-sky>
         <a-entity id="camera" camera position="0 1.6 0"></a-entity>
-        <a-light type="ambient" intensity="0.7"></a-light>
-        <a-light type="directional" position="1 2 1"></a-light>
+        <a-light type="ambient" intensity="0.8"></a-light>
+        <a-light type="directional" position="1 2 1" intensity="0.5"></a-light>
         <a-entity id="ball-container"></a-entity>
     </a-scene>
 
     <script>
-        let score = 0;
-        let level = 1;
-        let ballSpeed = 0.015;
-        let lastLevelUpdate = Date.now();
-        const colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FFF333', '#33FFF3'];
-
+        const videoElement = document.getElementById('input_video');
+        const canvasElement = document.getElementById('output_canvas');
+        const canvasCtx = canvasElement.getContext('2d');
         const scoreEl = document.getElementById('score');
         const levelEl = document.getElementById('level');
         const container = document.getElementById('ball-container');
 
-        // Tạo âm thanh nổ bằng Code (Synthesizer)
+        let score = 0; let level = 1; let ballSpeed = 0.015;
+        let lastLevelUpdate = Date.now();
+        const colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FFF333'];
+
         function playPopSound() {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
+            osc.connect(gain); gain.connect(ctx.destination);
             osc.type = 'sine';
             gain.gain.setValueAtTime(0.3, ctx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
-            osc.frequency.setValueAtTime(600, ctx.currentTime);
+            osc.frequency.setValueAtTime(800, ctx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.1);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.1);
+            osc.start(); osc.stop(ctx.currentTime + 0.1);
         }
 
-        // Tạo bong bóng có dây
         function createBubble() {
             const group = document.createElement('a-entity');
             const color = colors[Math.floor(Math.random() * colors.length)];
             
-            // Phần quả bóng
             const sphere = document.createElement('a-sphere');
-            sphere.setAttribute('radius', '0.25');
+            sphere.setAttribute('radius', '0.2');
             sphere.setAttribute('color', color);
-            sphere.setAttribute('opacity', '0.8');
-            sphere.setAttribute('material', 'shininess: 100; reflective: true');
+            sphere.setAttribute('opacity', '0.7');
             
-            // Phần sợi dây
-            const string = document.createElement('a-cylinder');
-            string.setAttribute('radius', '0.005');
-            string.setAttribute('height', '0.6');
-            string.setAttribute('color', '#FFFFFF');
-            string.setAttribute('position', '0 -0.55 0');
+            const string = document.createElement('a-path');
+            string.setAttribute('path', 'M 0 0 0 L 0 -0.8 0');
+            string.setAttribute('stroke', '#999');
 
             group.appendChild(sphere);
             group.appendChild(string);
             
-            // Vị trí ngẫu nhiên
             const x = (Math.random() - 0.5) * 4;
-            group.setAttribute('position', `${x} -2 -4`);
+            group.setAttribute('position', `${x} -1 -4`);
             group.userData = { speed: ballSpeed + (Math.random() * 0.01) };
-            
             container.appendChild(group);
         }
 
-        // Vòng lặp cập nhật
-        function update() {
-            // Tăng tốc độ sau mỗi 10 giây
-            if (Date.now() - lastLevelUpdate > 10000) {
-                level++;
-                ballSpeed += 0.008;
-                lastLevelUpdate = Date.now();
-                levelEl.innerText = level;
-            }
+        function onResults(results) {
+            // Xóa canvas cũ để vẽ khung xương mới
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            if (results.multiHandLandmarks) {
+                for (const landmarks of results.multiHandLandmarks) {
+                    // Vẽ các điểm nối xương tay
+                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 5});
+                    drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 2});
 
-            const bubbles = container.querySelectorAll('a-entity');
-            bubbles.forEach(b => {
-                const pos = b.getAttribute('position');
-                pos.y += b.userData.speed;
-                b.setAttribute('position', pos);
-                if (pos.y > 4) b.remove(); // Xóa khi bay mất
-            });
+                    // Kiểm tra nổ bóng bằng ngón trỏ (Index finger tip) và ngón cái (Thumb tip)
+                    const thumb = landmarks[4];
+                    const index = landmarks[8];
+                    const dist = Math.hypot(thumb.x - index.x, thumb.y - index.y);
 
-            if (Math.random() < 0.03) createBubble();
-            requestAnimationFrame(update);
-        }
-
-        // Xử lý MediaPipe Hands để bắt cử chỉ ngón tay
-        const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
-        hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.7, minTrackingConfidence: 0.7 });
-
-        hands.onResults((results) => {
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                const lm = results.multiHandLandmarks[0];
-                const thumb = lm[4]; // Đầu ngón cái
-                const index = lm[8]; // Đầu ngón trỏ
-
-                // Tính khoảng cách Pinch (búng/kẹp)
-                const dist = Math.hypot(thumb.x - index.x, thumb.y - index.y);
-                
-                if (dist < 0.05) { // Nếu hai ngón tay chạm nhau
-                    checkCollision(index.x, index.y);
+                    if (dist < 0.05) {
+                        checkCollision(index.x, index.y);
+                    }
                 }
             }
-        });
+            canvasCtx.restore();
+        }
 
         function checkCollision(handX, handY) {
-            // Chuyển tọa độ màn hình sang không gian 3D đơn giản
-            const x3d = (handX - 0.5) * -10; 
-            const y3d = (0.5 - handY) * 10 + 1.6;
+            const x3d = (handX - 0.5) * -8; 
+            const y3d = (0.5 - handY) * 8 + 1.6;
 
             const bubbles = container.querySelectorAll('a-entity');
             bubbles.forEach(b => {
                 const bPos = b.getAttribute('position');
-                const dist = Math.hypot(bPos.x - x3d, bPos.y - y3d);
-                
-                if (dist < 0.6) { // Nếu tay chạm gần bóng
+                const d = Math.hypot(bPos.x - x3d, bPos.y - y3d);
+                if (d < 0.5) {
                     playPopSound();
                     score += level * 10;
                     scoreEl.innerText = score;
@@ -153,18 +144,37 @@
             });
         }
 
-        // Khởi động camera
-        const videoElement = document.createElement('video');
-        videoElement.style.display = 'none';
-        document.body.appendChild(videoElement);
+        const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+        hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+        hands.onResults(onResults);
 
         const camera = new Camera(videoElement, {
-            onFrame: async () => { await hands.send({image: videoElement}); },
+            onFrame: async () => {
+                canvasElement.width = window.innerWidth;
+                canvasElement.height = window.innerHeight;
+                await hands.send({image: videoElement});
+            },
             width: 1280, height: 720
         });
         camera.start();
 
-        update();
+        function gameLoop() {
+            if (Date.now() - lastLevelUpdate > 10000) {
+                level++; ballSpeed += 0.005;
+                lastLevelUpdate = Date.now();
+                levelEl.innerText = level;
+            }
+            const bubbles = container.querySelectorAll('a-entity');
+            bubbles.forEach(b => {
+                const pos = b.getAttribute('position');
+                pos.y += b.userData.speed;
+                b.setAttribute('position', pos);
+                if (pos.y > 5) b.remove();
+            });
+            if (Math.random() < 0.03) createBubble();
+            requestAnimationFrame(gameLoop);
+        }
+        gameLoop();
     </script>
 </body>
 </html>

@@ -2,105 +2,63 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>AR Engine - Exploded View</title>
+    <title>AR Engine Check</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
-
     <style>
         body { margin: 0; overflow: hidden; }
-        .menu-container {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            z-index: 999;
+        #debug-info {
+            position: fixed; top: 10px; left: 10px; z-index: 1000;
+            background: rgba(0,0,0,0.7); color: white; padding: 10px;
+            font-family: monospace; font-size: 12px; pointer-events: none;
         }
-        button {
-            padding: 12px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: 0.3s;
-        }
-        .btn-explode { background-color: #ff5722; color: white; }
-        .btn-reset { background-color: #4caf50; color: white; }
-        button:active { transform: scale(0.9); }
     </style>
 </head>
 
 <body>
-    <div class="menu-container">
-        <button class="btn-explode" onclick="toggleExplode()">Exploded View</button>
-        <button class="btn-reset" onclick="resetModel()">Lắp ráp lại</button>
-    </div>
+    <div id="debug-info">Đang khởi tạo... Hãy soi vào Hiro Marker</div>
 
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-        
         <a-assets>
             <a-asset-item id="engineModel" src="motorcycle_4_stroke_engine.glb"></a-asset-item>
         </a-assets>
 
-        <a-marker preset="hiro">
+        <a-marker preset="hiro" id="hiro-marker">
+            <a-sphere position="0 0 0" radius="0.05" color="red"></a-sphere>
+
             <a-entity 
-                id="engine"
+                id="main-model"
                 gltf-model="#engineModel"
-                scale="0.3 0.3 0.3"
-                position="0 0 0"
-                rotation="-90 0 0"
-                animation-mixer>
+                scale="0.05 0.05 0.05" 
+                position="0 0.5 0"
+                rotation="0 0 0"
+                visible="true">
             </a-entity>
-            
-            <a-light type="ambient" intensity="1.5"></a-light>
-            <a-light type="directional" intensity="0.8" position="1 1 1"></a-light>
         </a-marker>
 
         <a-entity camera></a-entity>
     </a-scene>
 
     <script>
-        let isExploded = false;
+        const info = document.getElementById('debug-info');
+        const model = document.querySelector('#main-model');
 
-        function toggleExplode() {
-            const model = document.querySelector('#engine');
-            const mesh = model.getObject3D('mesh');
-            
-            if (!mesh) return;
+        // Báo cáo trạng thái khi tìm thấy Marker
+        document.querySelector('#hiro-marker').addEventListener('markerFound', () => {
+            info.innerHTML = "Trạng thái: ĐÃ THẤY MARKER <br> Đang đợi nạp file 3D...";
+            info.style.color = "#00FF00";
+        });
 
-            isExploded = !isExploded;
-            
-            // Duyệt qua từng bộ phận (piston, trục khuỷu, vỏ máy...)
-            mesh.traverse(node => {
-                if (node.isMesh) {
-                    // Logic Exploded View: Đẩy các bộ phận ra xa tâm theo tỉ lệ
-                    if (isExploded) {
-                        // Lưu vị trí gốc nếu chưa có
-                        if (!node.userData.originalPos) {
-                            node.userData.originalPos = node.position.clone();
-                        }
-                        // Đẩy ra xa (nhân 3 lần tọa độ hiện tại)
-                        node.position.x *= 3;
-                        node.position.y *= 3;
-                        node.position.z *= 3;
-                    } else {
-                        // Quay về vị trí cũ
-                        if (node.userData.originalPos) {
-                            node.position.copy(node.userData.originalPos);
-                        }
-                    }
-                }
-            });
-        }
+        // Kiểm tra xem file 3D đã load thành công chưa
+        model.addEventListener('model-loaded', () => {
+            info.innerHTML = "Trạng thái: HOÀN TẤT <br> Đã nạp thành công động cơ!";
+            info.style.color = "cyan";
+        });
 
-        function resetModel() {
-            isExploded = true;
-            toggleExplode(); // Chuyển trạng thái về bình thường
-        }
+        model.addEventListener('model-error', (e) => {
+            info.innerHTML = "Trạng thái: LỖI FILE 3D <br> Kiểm tra lại tên file trên GitHub!";
+            info.style.color = "red";
+        });
     </script>
 </body>
 </html>

@@ -3,108 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ôn Tập Hóa Học - Nhi Hóa</title>
+    <title>Ôn Tập Hóa Học - Quiz</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --accent: #e74c3c;
-            --light: #ecf0f1;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; margin: 0; background: #f4f7f6; color: #333; }
-        header { background: var(--primary); color: white; padding: 1rem; text-align: center; position: sticky; top: 0; z-index: 100; }
-        nav { display: flex; justify-content: center; background: #34495e; padding: 10px; }
-        nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; cursor: pointer; }
-        nav a:hover { color: var(--secondary); }
+        :root { --primary: #2c3e50; --secondary: #3498db; --success: #27ae60; --light: #ecf0f1; }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; margin: 0; background: #f4f7f6; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; }
+        nav { display: flex; justify-content: center; background: #34495e; padding: 10px; sticky; top: 0; }
+        nav btn { color: white; margin: 0 10px; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: 0.3s; }
+        nav btn:hover { background: var(--secondary); }
         .container { max-width: 800px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .section { display: none; animation: fadeIn 0.5s; }
+        .section { display: none; }
         .active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        h2 { border-left: 5px solid var(--secondary); padding-left: 10px; color: var(--primary); }
-        .card { background: var(--light); border-radius: 5px; padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--secondary); }
-        .example { background: #fff3cd; padding: 10px; border-radius: 5px; font-family: monospace; }
-        .footer { text-align: center; margin-top: 50px; font-size: 0.8rem; color: #777; }
+        .card { background: var(--light); padding: 15px; margin-bottom: 15px; border-left: 4px solid var(--secondary); border-radius: 4px; }
+        /* Quiz Style */
+        .quiz-container { background: #fff; padding: 20px; }
+        .question { font-weight: bold; margin-bottom: 15px; font-size: 1.1rem; }
+        .options { list-style: none; padding: 0; }
+        .options li { background: #eee; margin-bottom: 8px; padding: 10px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        .options li:hover { background: #ddd; }
+        .correct { background: #2ecc71 !important; color: white; }
+        .wrong { background: #e74c3c !important; color: white; }
+        #result-area { margin-top: 20px; font-weight: bold; text-align: center; font-size: 1.2rem; color: var(--primary); }
+        button#reset-quiz { background: var(--secondary); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Học Tập Hóa Học</h1>
+    <h1>Hệ Thống Ôn Tập Hóa Học</h1>
 </header>
 
 <nav>
-    <a onclick="showSection('bai5')">Bài 5</a>
-    <a onclick="showSection('bai6')">Bài 6</a>
-    <a onclick="showSection('bai7')">Bài 7</a>
+    <btn onclick="showSection('bai-hoc')">📖 Bài Học</btn>
+    <btn onclick="showSection('quiz')">✍️ Làm Quiz</btn>
 </nav>
 
 <div class="container">
-    <div id="bai5" class="section active">
-        <h2>Bài 5: Phân Tử - Đơn Chất - Hợp Chất</h2>
+    <div id="bai-hoc" class="section active">
+        <h2>Nội dung lý thuyết</h2>
         <div class="card">
-            <h3>1. Phân tử</h3>
+            <h3>Bài 5: Phân tử - Đơn chất - Hợp chất</h3>
             <ul>
-                <li>Là hạt đại diện cho chất. [cite: 3]</li>
-                <li>Gồm một số nguyên tử liên kết với nhau (trừ khí hiếm). [cite: 4]</li>
-                <li>Giữ nguyên tính chất hóa học của chất. [cite: 5]</li>
+                <li><strong>Phân tử:</strong> Hạt đại diện cho chất, gồm một số nguyên tử liên kết (trừ khí hiếm)[cite: 3, 4, 5].</li>
+                <li><strong>Đơn chất:</strong> Do một nguyên tố hóa học tạo nên[cite: 7].</li>
+                <li><strong>Hợp chất:</strong> Do từ hai nguyên tố hóa học trở lên tạo thành[cite: 10].</li>
             </ul>
         </div>
         <div class="card">
-            <h3>2. Đơn chất</h3>
-            <p>Do <strong>một</strong> nguyên tố hóa học tạo nên. [cite: 7]</p>
-        </div>
-        <div class="card">
-            <h3>3. Hợp chất</h3>
-            <p>Do từ <strong>hai</strong> nguyên tố hóa học trở lên tạo thành. [cite: 10]</p>
-            <p><i>Lưu ý:</i> Tính chất khác so với các nguyên tố ban đầu. [cite: 11]</p>
-        </div>
-    </div>
-
-    <div id="bai6" class="section">
-        <h2>Bài 6: Giới Thiệu Về Liên Kết</h2>
-        <div class="card">
-            <h3>1. Liên kết Ion (Cho - Nhận electron)</h3>
-            <p>Hình thành giữa <strong>Kim loại</strong> (nhóm 1, 2, 3) và <strong>Phi kim</strong> (nhóm 4, 5, 6, 7). [cite: 13, 14, 15, 16]</p>
-            <div class="example">
-                Ví dụ: Na (mất 1e) → Na+ & Cl (+1e) → Cl- <br>
-                Na+ + Cl- → NaCl [cite: 18, 19]
-            </div>
-        </div>
-                <div class="card">
-            <h3>2. Liên kết Cộng hóa trị (Góp chung)</h3>
-            <p>Hình thành giữa <strong>hai phi kim</strong> bằng cách góp chung các cặp electron. [cite: 20, 21]</p>
-            <p>Mục tiêu: Đạt cấu hình bền vững (như khí hiếm). [cite: 23]</p>
-            <div class="example">
-                Ví dụ: H2: mỗi H góp 1e → bền như He. [cite: 24]
-            </div>
-        </div>
-    </div>
-
-    <div id="bai7" class="section">
-        <h2>Bài 7: Hóa Trị & Công Thức Hóa Học</h2>
-        <div class="card">
-            <h3>Quy tắc hóa trị</h3>
-            <p>Dạng chung: $A_x B_y$ [cite: 29]</p>
-            <p>Quy tắc: $a \cdot x = b \cdot y$ (với a, b là hóa trị). [cite: 32, 33]</p>
-        </div>
-        <div class="card">
-            <h3>Tính % Nguyên tố trong C2H4</h3>
-            <p>Khối lượng mol = $12 \cdot 2 + 1 \cdot 4 = 28$ </p>
+            <h3>Bài 6: Liên kết hóa học</h3>
             <ul>
-                <li>%C = $(12 \cdot 2 \cdot 100) / 28 = 85,7\%$ [cite: 35]</li>
-                <li>%H = $(1 \cdot 4 \cdot 100) / 28 \approx 14,3\%$ [cite: 36]</li>
+                <li><strong>Liên kết Ion:</strong> Kim loại (nhóm 1, 2, 3) nhường e cho Phi kim (nhóm 4, 5, 6, 7)[cite: 13, 14, 15, 16].</li>
+                <li><strong>Liên kết Cộng hóa trị:</strong> Hai phi kim góp chung electron để bền như khí hiếm[cite: 20, 23].</li>
             </ul>
         </div>
+        <div class="card">
+            <h3>Bài 7: Hóa trị</h3>
+            <p>Hóa trị là khả năng liên kết của nguyên tử này với nguyên tử khác[cite: 27]. Quy tắc: $A_x^a B_y^b \Rightarrow a \cdot x = b \cdot y$[cite: 28, 29, 32, 33].</p>
+        </div>
+    </div>
+
+    <div id="quiz" class="section">
+        <h2>Kiểm tra kiến thức</h2>
+        <div id="quiz-content">
+            </div>
+        <div id="result-area"></div>
+        <center><button id="reset-quiz" onclick="loadQuiz()" style="display:none;">Làm lại Quiz</button></center>
     </div>
 </div>
 
-<div class="footer">Nội dung dựa trên tài liệu NHI HÓA</div>
-
 <script>
+    const quizData = [
+        {
+            q: "Hạt đại diện cho chất, giữ nguyên tính chất hóa học là gì?",
+            options: ["Nguyên tử", "Phân tử", "Ion", "Đơn chất"],
+            correct: 1 // Phân tử [cite: 3, 5]
+        },
+        {
+            q: "Đơn chất là chất tạo nên từ bao nhiêu nguyên tố hóa học?",
+            options: ["Một", "Hai", "Ba", "Nhiều"],
+            correct: 0 // Một [cite: 7]
+        },
+        {
+            q: "Liên kết hình thành giữa Kim loại và Phi kim bằng việc cho-nhận electron là:",
+            options: ["Cộng hóa trị", "Kim loại", "Ion", "Hydro"],
+            correct: 2 // Ion [cite: 13, 14]
+        },
+        {
+            q: "Liên kết cộng hóa trị thường hình thành giữa:",
+            options: ["Kim loại và Phi kim", "Hai phi kim", "Hai kim loại", "Khí hiếm"],
+            correct: 1 // Hai phi kim [cite: 20]
+        },
+        {
+            q: "Trong công thức C2H4, phần trăm khối lượng của Carbon (C=12, H=1) là bao nhiêu?",
+            options: ["14.3%", "50%", "85.7%", "75%"],
+            correct: 2 // 85.7% [cite: 35]
+        }
+    ];
+
     function showSection(id) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
+
+    function loadQuiz() {
+        const quizContent = document.getElementById('quiz-content');
+        const resultArea = document.getElementById('result-area');
+        const resetBtn = document.getElementById('reset-quiz');
+        
+        quizContent.innerHTML = '';
+        resultArea.innerHTML = '';
+        resetBtn.style.display = 'none';
+
+        quizData.forEach((item, index) => {
+            const qDiv = document.createElement('div');
+            qDiv.className = 'quiz-container';
+            qDiv.innerHTML = `
+                <div class="question">Câu ${index + 1}: ${item.q}</div>
+                <ul class="options" id="q${index}">
+                    ${item.options.map((opt, i) => `<li onclick="checkAnswer(${index}, ${i})">${opt}</li>`).join('')}
+                </ul>
+                <hr>
+            `;
+            quizContent.appendChild(qDiv);
+        });
+    }
+
+    let score = 0;
+    let answered = 0;
+
+    function checkAnswer(qIdx, choiceIdx) {
+        const optionsUl = document.getElementById(`q${qIdx}`);
+        if (optionsUl.classList.contains('disabled')) return;
+
+        const items = optionsUl.getElementsByTagName('li');
+        const correctIdx = quizData[qIdx].correct;
+
+        if (choiceIdx === correctIdx) {
+            items[choiceIdx].classList.add('correct');
+            score++;
+        } else {
+            items[choiceIdx].classList.add('wrong');
+            items[correctIdx].classList.add('correct');
+        }
+
+        optionsUl.classList.add('disabled');
+        answered++;
+
+        if (answered === quizData.length) {
+            document.getElementById('result-area').innerHTML = `Bạn đạt được ${score}/${quizData.length} điểm!`;
+            document.getElementById('reset-quiz').style.display = 'block';
+        }
+    }
+
+    // Khởi tạo Quiz lần đầu
+    loadQuiz();
 </script>
 
 </body>

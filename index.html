@@ -1,135 +1,61 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hóa Học Pro - Interactive App</title>
-    <style>
-        :root { --p: #4a90e2; --s: #50e3c2; --d: #2c3e50; --bg: #f0f4f8; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; }
-        .nav-bar { background: var(--d); display: flex; justify-content: center; gap: 20px; padding: 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .nav-btn { color: white; cursor: pointer; padding: 8px 20px; border-radius: 20px; transition: 0.3s; font-weight: 500; }
-        .nav-btn:hover, .nav-btn.active { background: var(--p); }
-        .container { max-width: 900px; margin: 30px auto; padding: 20px; }
-        .card { background: white; border-radius: 15px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 5px solid var(--p); }
-        .visual-box { background: #f9fafb; border: 1px dashed #cbd5e0; border-radius: 10px; padding: 15px; text-align: center; margin: 15px 0; }
-        .quiz-box { display: none; }
-        .option-btn { display: block; width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #edf2f7; border-radius: 10px; background: white; text-align: left; cursor: pointer; transition: 0.2s; }
-        .option-btn:hover { border-color: var(--p); background: #f0f7ff; }
-        .correct { background: #c6f6d5 !important; border-color: #38a169 !important; }
-        .wrong { background: #fed7d7 !important; border-color: #e53e3e !important; }
-        .badge { background: var(--p); color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; margin-bottom: 10px; display: inline-block; }
-    </style>
-</head>
-<body>
-
-<div class="nav-bar">
-    <div class="nav-btn active" onclick="tab('study')">📖 Bài Học Sinh Động</div>
-    <div class="nav-btn" onclick="tab('quiz')">⚡ Thử Thách Quiz</div>
-</div>
-
-<div class="container">
-    <div id="study" class="tab-content">
-        <div class="card">
-            <span class="badge">Bài 5</span>
-            <h2>Phân Tử & Chất</h2>
-            <p><strong>Phân tử:</strong> Là hạt đại diện cho chất, giữ nguyên tính chất hóa học[cite: 3, 5].</p>
-            <div class="visual-box">
-                
-                <p><small><i>Minh họa: Phân tử gồm các nguyên tử liên kết với nhau[cite: 4].</i></small></p>
-            </div>
-            <p><strong>Phân biệt:</strong> Đơn chất tạo từ 1 nguyên tố [cite: 7], Hợp chất tạo từ 2 nguyên tố trở lên[cite: 10].</p>
-        </div>
-
-        <div class="card" style="border-top-color: var(--s);">
-            <span class="badge">Bài 6</span>
-            <h2>Liên Kết Hóa Học</h2>
-            <p><strong>Liên kết Ion:</strong> Sự trao đổi electron giữa Kim loại và Phi kim[cite: 13, 14].</p>
-            <div class="visual-box">
-                
-
-[Image of ionic bond formation between Sodium and Chlorine]
-
-                <p><small><i>Ví dụ: Na nhường 1e thành Na+, Cl nhận 1e thành Cl-[cite: 18, 19].</i></small></p>
-            </div>
-            <p><strong>Liên kết Cộng hóa trị:</strong> Các phi kim "góp vốn" electron chung[cite: 20].</p>
-            <div class="visual-box">
-                
-                <p><small><i>Mục tiêu: Đạt cấu hình bền vững như khí hiếm[cite: 23].</i></small></p>
-            </div>
-        </div>
-    </div>
-
-    <div id="quiz" class="tab-content" style="display:none;">
-        <div class="card">
-            <div id="quiz-header">
-                <h2>Thử Thách Kiến Thức</h2>
-                <p id="timer">Thời gian: 00:00</p>
-            </div>
-            <div id="question-container"></div>
-            <div id="score-board" style="display:none; text-align:center;">
-                <h3 id="final-score"></h3>
-                <button class="nav-btn" onclick="startQuiz()" style="background:var(--p); border:none;">Chơi Lại</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const questions = [
-        { q: "Chất nào sau đây là hợp chất?", options: ["Khí Oxygen (O2)", "Kim loại Đồng (Cu)", "Muối ăn (NaCl)", "Khí Nitrogen (N2)"], a: 2 },
-        { q: "Trong liên kết Ion, nguyên tử kim loại có xu hướng gì?", options: ["Góp chung electron", "Nhận thêm electron", "Mất (nhường) electron", "Không thay đổi"], a: 2 },
-        { q: "Nguyên tử H trong H2 góp chung bao nhiêu electron để bền vững?", options: ["1 electron", "2 electron", "3 electron", "4 electron"], a: 0 },
-        { q: "Tính hóa trị của C trong hợp chất CH4 (biết H hóa trị I)?", options: ["II", "III", "IV", "V"], a: 2 },
-        { q: "Công thức AxBy tuân theo quy tắc hóa trị nào?", options: ["a/x = b/y", "a.x = b.y", "a + x = b + y", "a.b = x.y"], a: 1 }
-    ];
-
-    let currentQ = 0;
-    let score = 0;
-
-    function tab(name) {
-        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-        document.getElementById(name).style.display = 'block';
-        if(name === 'quiz') startQuiz();
-    }
-
-    function startQuiz() {
-        currentQ = 0; score = 0;
-        document.getElementById('score-board').style.display = 'none';
-        document.getElementById('question-container').style.display = 'block';
-        showQuestion();
-    }
-
-    function showQuestion() {
-        let q = questions[currentQ];
-        let html = `<h3>${q.q}</h3>`;
-        q.options.forEach((opt, i) => {
-            html += `<button class="option-btn" onclick="check(${i})">${opt}</button>`;
-        });
-        document.getElementById('question-container').innerHTML = html;
-    }
-
-    function check(idx) {
-        if(idx === questions[currentQ].a) {
-            score++;
-            document.querySelectorAll('.option-btn')[idx].classList.add('correct');
-        } else {
-            document.querySelectorAll('.option-btn')[idx].classList.add('wrong');
-            document.querySelectorAll('.option-btn')[questions[currentQ].a].classList.add('correct');
-        }
+<div id="review" class="tab-content">
+    <div class="card" style="border-top-color: #f59e0b;">
+        <span class="badge" style="background:#f59e0b">Trọng tâm 1</span>
+        <h2>1. Nguyên tử & Bảng tuần hoàn</h2>
+        <p><strong>Cấu tạo nguyên tử:</strong></p>
+        <ul>
+            <li>Hạt nhân: Proton (+), Neutron (không điện). <i>(Khối lượng tập trung tại đây)</i></li>
+            <li>Vỏ: Electron (-) chuyển động xung quanh.</li>
+        </ul>
         
-        setTimeout(() => {
-            currentQ++;
-            if(currentQ < questions.length) showQuestion();
-            else finish();
-        }, 1000);
-    }
+        
+        <div class="visual-box" style="background: #fffbeb">
+            <strong>Mẹo nhớ Bảng tuần hoàn:</strong>
+            <p>Ô = Số hiệu NT | Chu kì = Hàng ngang | Nhóm = Cột dọc</p>
+            <p><small>Hãy thuộc lòng 20 nguyên tố đầu (H, He, Li, Be, B, C, N, O, F, Ne...)</small></p>
+        </div>
+    </div>
 
-    function finish() {
-        document.getElementById('question-container').style.display = 'none';
-        document.getElementById('score-board').style.display = 'block';
-        document.getElementById('final-score').innerText = `Bạn đã hoàn thành! Điểm số: ${score}/${questions.length}`;
-    }
-</script>
-</body>
-</html>
+    <div class="card" style="border-top-color: #8b5cf6;">
+        <span class="badge" style="background:#8b5cf6">Trọng tâm 2</span>
+        <h2>2. Phân tử - Đơn chất - Hợp chất</h2>
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
+                <strong>Đơn chất</strong><br>
+                <small>1 nguyên tố</small><br>
+                <code style="color:#e11d48">O2, Cu, Fe</code>
+            </div>
+            <div style="flex: 1; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
+                <strong>Hợp chất</strong><br>
+                <small>2+ nguyên tố</small><br>
+                <code style="color:#e11d48">H2O, NaCl</code>
+            </div>
+        </div>
+        <p style="margin-top:15px"><strong>Khối lượng phân tử (amu):</strong> Tổng khối lượng các nguyên tử trong phân tử.</p>
+    </div>
+
+    <div class="card" style="border-top-color: #10b981;">
+        <span class="badge" style="background:#10b981">Trọng tâm 3</span>
+        <h2>3. Liên kết & Hóa trị</h2>
+        <p><strong>Quy tắc bát tử:</strong> Nguyên tử muốn có 8e lớp ngoài cùng để bền vững.</p>
+        <ul>
+            <li><strong>Liên kết Ion:</strong> Kim loại cho e, Phi kim nhận e.</li>
+            <li><strong>Liên kết Cộng hóa trị:</strong> Dùng chung e (thường là 2 phi kim).</li>
+        </ul>
+        
+        <div class="visual-box" style="border: 2px solid #10b981; background: #ecfdf5">
+            <strong>Quy tắc hóa trị:</strong> Trong $A_x^a B_y^b$ ta có: <br>
+            <span style="font-size: 1.2rem; color: #047857"><strong>$x \cdot a = y \cdot b$</strong></span>
+        </div>
+    </div>
+
+    <div class="card" style="border-top-color: #ef4444;">
+        <span class="badge" style="background:#ef4444">Kỹ năng</span>
+        <h2>4. Dạng bài tập tính toán</h2>
+        <p><strong>Công thức tính % khối lượng nguyên tố A:</strong></p>
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; text-align: center;">
+            $\%A = \frac{\text{KL nguyên tử A} \cdot \text{Số nguyên tử A}}{\text{KL phân tử hợp chất}} \cdot 100\%$
+        </div>
+        <p><small><i>Ví dụ: Trong H2O, %H = (1 * 2 / 18) * 100% ≈ 11,11%</i></small></p>
+    </div>
+</div>

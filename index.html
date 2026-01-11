@@ -1,166 +1,23 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý công việc 9 Màu</title>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            overflow: hidden;
-            background-color: #1a1a1a;
-        }
+<script>
+    // Bảng màu chuyên nghiệp hơn
+    const colors = [
+        '#4A90E2', '#58D68D', '#F4D03F', 
+        '#EB984E', '#EC7063', '#A569BD', 
+        '#5D6D7E', '#45B39D', '#DC7633'
+    ];
 
-        /* Lưới chính 3x3 */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            height: 100vh;
-            width: 100vw;
-            transition: all 0.5s ease;
-        }
-
-        .grid-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            cursor: pointer;
-            border: 1px solid rgba(0,0,0,0.1);
-            position: relative;
-            transition: filter 0.3s;
-            color: white;
-            padding: 10px;
-        }
-
-        .grid-item:hover {
-            filter: brightness(1.1);
-            z-index: 10;
-        }
-
-        /* Ô nhập văn bản */
-        .task-text {
-            background: transparent;
-            border: none;
-            color: white;
-            font-weight: bold;
-            font-size: 1.1rem;
-            text-align: center;
-            width: 90%;
-            outline: none;
-            word-wrap: break-word;
-        }
-
-        /* Nút quay lại */
-        #back-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 24px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            cursor: pointer;
-            display: none;
-            z-index: 100;
-            font-weight: bold;
-        }
-
-        #back-btn:hover {
-            background: #000;
-        }
-    </style>
-</head>
-<body>
-
-    <button id="back-btn" onclick="resetGrid()">← Quay lại Menu</button>
-    <div class="grid-container" id="mainGrid"></div>
-
-    <script>
-        const colors = [
-            '#FF5733', '#33FF57', '#3357FF', 
-            '#F333FF', '#FF33A1', '#33FFF5', 
-            '#F3FF33', '#FF8633', '#8E44AD'
-        ];
-
-        // Tên 9 chủ đề lớn
-        const categories = [
-            "Sức khỏe", "Công việc", "Học tập", 
-            "Tài chính", "Gia đình", "Bạn bè", 
-            "Sở thích", "Dự án", "Ước mơ"
-        ];
-
-        const mainGrid = document.getElementById('mainGrid');
-        const backBtn = document.getElementById('back-btn');
-
-        // Hàm tạo lưới ban đầu
-        function createInitialGrid() {
-            mainGrid.innerHTML = '';
-            backBtn.style.display = 'none';
-            
-            colors.forEach((color, index) => {
-                const div = document.createElement('div');
-                div.className = 'grid-item';
-                div.style.backgroundColor = color;
-                
-                // Lấy tên chủ đề đã lưu hoặc dùng mặc định
-                const savedTitle = localStorage.getItem(`cat-${index}`) || categories[index];
-                
-                div.innerHTML = `<div class="task-text">${savedTitle}</div>`;
-                
-                // Click vào ô để phóng to
-                div.onclick = (e) => {
-                    if (e.target.className !== 'task-text') {
-                        zoomIntoColor(color, index);
-                    }
-                };
-                
-                mainGrid.appendChild(div);
-            });
-        }
-
-        // Hàm khi nhấn vào một ô màu để xem 9 việc con
-        function zoomIntoColor(selectedColor, catIndex) {
-            mainGrid.innerHTML = ''; 
-            backBtn.style.display = 'block';
-
-            for (let i = 0; i < 9; i++) {
-                const subDiv = document.createElement('div');
-                subDiv.className = 'grid-item';
-                subDiv.style.backgroundColor = selectedColor;
-                subDiv.style.border = '1px solid rgba(255,255,255,0.2)';
-                
-                // Tạo mã định danh duy nhất cho mỗi việc con
-                const storageKey = `task-${catIndex}-${i}`;
-                const savedTask = localStorage.getItem(storageKey) || `Việc ${i+1}`;
-
-                // Tạo ô có thể chỉnh sửa
-                subDiv.innerHTML = `
-                    <div contenteditable="true" class="task-text" 
-                         onblur="saveTask('${storageKey}', this.innerText)">
-                         ${savedTask}
-                    </div>`;
-                
-                mainGrid.appendChild(subDiv);
-            }
-        }
-
-        // Lưu dữ liệu vào trình duyệt
-        function saveTask(key, value) {
-            localStorage.setItem(key, value);
-        }
-
-        function resetGrid() {
-            createInitialGrid();
-        }
-
-        // Khởi tạo lần đầu
-        createInitialGrid();
-    </script>
-</body>
-</html>
+    // Cập nhật CSS trong style để tinh tế hơn
+    /* Thêm vào phần style */
+    /*
+    .grid-item {
+        border-radius: 8px; /* Bo góc nhẹ */
+        margin: 4px;        /* Tạo khoảng cách giữa các ô */
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    .grid-item:hover {
+        transform: translateY(-5px); /* Hiệu ứng nổi lên */
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    */
+</script>

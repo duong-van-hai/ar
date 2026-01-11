@@ -3,187 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống Quản lý 9 Mục tiêu</title>
+    <title>Hệ thống Quản lý 81 Mục tiêu</title>
     <style>
         :root {
-            --bg-color: #f4f7f6;
-            --text-main: #2c3e50;
-            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --bg-color: #f0f2f5;
+            --text-main: #1c1e21;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; padding: 0; height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             overflow: hidden;
         }
 
-        /* Lưới chính */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
             height: 100vh;
             width: 100vw;
-            gap: 15px; /* Khoảng cách giữa các ô */
-            padding: 15px;
+            gap: 12px;
+            padding: 12px;
             box-sizing: border-box;
         }
 
-        /* Từng ô vuông */
         .grid-item {
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
             cursor: pointer;
-            border-radius: 12px; /* Bo góc chuyên nghiệp */
+            border-radius: 15px;
             position: relative;
             transition: var(--transition);
             box-shadow: var(--shadow);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 20px;
+            color: white;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .grid-item:hover {
-            transform: translateY(-5px); /* Hiệu ứng nổi lên khi di chuột */
-            filter: brightness(1.05);
-            box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+            transform: scale(1.02);
+            filter: brightness(1.1);
+            z-index: 5;
         }
 
-        /* Văn bản bên trong */
         .task-text {
             background: transparent;
             border: none;
             color: white;
             font-weight: 600;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             text-align: center;
             width: 100%;
             outline: none;
             word-wrap: break-word;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            line-height: 1.4;
         }
 
-        /* Nút quay lại */
         #back-btn {
             position: fixed;
-            top: 25px;
-            right: 25px;
-            padding: 12px 20px;
-            background: #ffffff;
-            color: var(--text-main);
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: white;
+            color: #333;
             border: none;
-            border-radius: 30px;
+            border-radius: 25px;
             cursor: pointer;
             display: none;
             z-index: 100;
             font-weight: bold;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        #back-btn:hover {
-            background: var(--text-main);
-            color: white;
-            transform: scale(1.05);
-        }
-
-        /* Responsive cho điện thoại */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .grid-container { gap: 8px; padding: 8px; }
-            .task-text { font-size: 0.9rem; }
+            .task-text { font-size: 0.85rem; }
         }
     </style>
 </head>
 <body>
 
-    <button id="back-btn" onclick="resetGrid()">← Quay lại Tổng quan</button>
+    <button id="back-btn" onclick="resetGrid()">← Tổng quan</button>
     <div class="grid-container" id="mainGrid"></div>
 
     <script>
-        // Bảng màu chuyên nghiệp (Muted & Professional)
-        const colors = [
-            '#4A90E2', // Blue - Công việc
-            '#58D68D', // Green - Sức khỏe
-            '#F4D03F', // Yellow - Tài chính
-            '#EB984E', // Orange - Học tập
-            '#EC7063', // Red - Việc khẩn cấp
-            '#A569BD', // Purple - Sáng tạo
-            '#5D6D7E', // Blue-Grey - Thói quen
-            '#45B39D', // Teal - Dự án
-            '#DC7633'  // Sienna - Gia đình
-        ];
+        const colors = ['#4A90E2', '#58D68D', '#F4D03F', '#EB984E', '#EC7063', '#A569BD', '#5D6D7E', '#45B39D', '#DC7633'];
 
-        const defaultCategories = [
-            "CÔNG VIỆC", "SỨC KHỎE", "TÀI CHÍNH", 
-            "HỌC TẬP", "QUAN TRỌNG", "SÁNG TẠO", 
-            "THÓI QUEN", "DỰ ÁN", "GIA ĐÌNH"
+        const data = [
+            { title: "CÔNG VIỆC", tasks: ["Kỹ năng chuyên môn", "Kết nối mạng lưới", "Dự án trọng tâm", "Đề xuất sáng kiến", "Quản lý thời gian", "Báo cáo & Đánh giá", "Cập nhật hồ sơ", "Hỗ trợ đồng nghiệp", "Sắp xếp gọn gàng"] },
+            { title: "SỨC KHỎE", tasks: ["Vận động 30 phút", "Ăn đủ rau xanh", "Uống 2L nước", "Ngủ đủ 8 tiếng", "Khám định kỳ", "10 phút thiền", "Theo dõi chỉ số", "Rời xa điện thoại", "Vệ sinh môi trường"] },
+            { title: "TÀI CHÍNH", tasks: ["Theo dõi thu nhập", "Ghi chép chi tiêu", "Trích quỹ tiết kiệm", "Tìm hiểu đầu tư", "Lên kế hoạch trả nợ", "Thanh toán hóa đơn", "Lập danh sách mua sắm", "Đọc sách tài chính", "Mục tiêu tài chính lớn"] },
+            { title: "HỌC TẬP", tasks: ["Đọc 10 trang sách", "Học ngoại ngữ mới", "Xem video khóa học", "Viết nhật ký", "Nghe Podcast tư duy", "Luyện kỹ năng mềm", "Ghi lại ý tưởng", "Tìm người cố vấn", "Thực hành thực tế"] },
+            { title: "GIA ĐÌNH", tasks: ["Hỏi thăm bố mẹ", "Thời gian chất lượng", "Hỗ trợ việc nhà", "Lên kế hoạch kỷ niệm", "Chia sẻ kinh nghiệm", "Thảo luận tài chính", "Sửa chữa vật dụng", "Lắng nghe tâm sự", "Gắn kết sở thích"] },
+            { title: "BẠN BÈ", tasks: ["Hỏi thăm bạn cũ", "Tham gia CLB mới", "Hẹn gặp cà phê", "Xây dựng uy tín", "Lọc mối quan hệ", "Hoạt động thiện nguyện", "Kết nối bạn bè", "Món quà bất ngờ", "Học từ người giỏi"] },
+            { title: "GIẢI TRÍ", tasks: ["Thử món ăn mới", "Chơi nhạc cụ/Vẽ", "Chơi môn thể thao", "Xem phim yêu thích", "Du lịch cuối tuần", "Chăm sóc bộ sưu tập", "Chơi game trí tuệ", "Làm đồ thủ công", "Đi tham quan bảo tàng"] },
+            { title: "DỰ ÁN RIÊNG", tasks: ["Nghiên cứu thị trường", "Lập lộ trình cụ thể", "Xây dựng nền tảng", "Thử nghiệm (MVP)", "Quản lý vốn", "Kế hoạch Marketing", "Tìm kiếm đối tác", "Kỷ luật 1 giờ/ngày", "Đo lường tiến độ"] },
+            { title: "ƯỚC MƠ", tasks: ["Ghi lòng biết ơn", "Xác định mục đích", "Lập Vision Board", "Vượt qua nỗi sợ", "Tìm sự bình an", "Chia sẻ & Cho đi", "Học cách tha thứ", "Đọc triết học", "Cam kết bản thân"] }
         ];
 
         const mainGrid = document.getElementById('mainGrid');
         const backBtn = document.getElementById('back-btn');
 
-        // Hàm tạo lưới ban đầu
         function createInitialGrid() {
             mainGrid.innerHTML = '';
             backBtn.style.display = 'none';
-            
-            colors.forEach((color, index) => {
+            data.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'grid-item';
-                div.style.backgroundColor = color;
-                
-                const savedTitle = localStorage.getItem(`cat-${index}`) || defaultCategories[index];
-                
-                div.innerHTML = `
-                    <div contenteditable="true" class="task-text" 
-                         onblur="saveTask('cat-${index}', this.innerText)"
-                         onclick="event.stopPropagation();">
-                         ${savedTitle}
-                    </div>`;
-                
-                div.onclick = () => zoomIntoColor(color, index);
+                div.style.backgroundColor = colors[index];
+                const savedTitle = localStorage.getItem(`cat-${index}`) || item.title;
+                div.innerHTML = `<div contenteditable="true" class="task-text" onblur="saveData('cat-${index}', this.innerText)" onclick="event.stopPropagation()">${savedTitle}</div>`;
+                div.onclick = () => zoomIntoColor(index);
                 mainGrid.appendChild(div);
             });
         }
 
-        // Hàm khi nhấn vào một ô màu
-        function zoomIntoColor(selectedColor, catIndex) {
-            mainGrid.innerHTML = ''; 
+        function zoomIntoColor(catIndex) {
+            mainGrid.innerHTML = '';
             backBtn.style.display = 'block';
-
+            const category = data[catIndex];
             for (let i = 0; i < 9; i++) {
                 const subDiv = document.createElement('div');
                 subDiv.className = 'grid-item';
-                subDiv.style.backgroundColor = selectedColor;
-                
+                subDiv.style.backgroundColor = colors[catIndex];
                 const storageKey = `task-${catIndex}-${i}`;
-                const savedTask = localStorage.getItem(storageKey) || `Nhiệm vụ ${i+1}`;
-
-                subDiv.innerHTML = `
-                    <div contenteditable="true" class="task-text" 
-                         onblur="saveTask('${storageKey}', this.innerText)">
-                         ${savedTask}
-                    </div>`;
-                
+                const savedTask = localStorage.getItem(storageKey) || category.tasks[i];
+                subDiv.innerHTML = `<div contenteditable="true" class="task-text" onblur="saveData('${storageKey}', this.innerText)">${savedTask}</div>`;
                 mainGrid.appendChild(subDiv);
             }
         }
 
-        // Lưu vào localStorage
-        function saveTask(key, value) {
-            localStorage.setItem(key, value);
-        }
-
-        function resetGrid() {
-            createInitialGrid();
-        }
-
-        // Khởi tạo
+        function saveData(key, value) { localStorage.setItem(key, value); }
+        function resetGrid() { createInitialGrid(); }
         createInitialGrid();
     </script>
 </body>

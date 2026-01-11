@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống Quản lý 81 Mục tiêu</title>
+    <title>Bản Đồ Tâm Trí - Quản Trị Cuộc Đời</title>
     <style>
         :root {
             --bg-color: #f0f2f5;
@@ -19,74 +19,73 @@
             overflow: hidden;
         }
 
+        /* Lớp phủ Sứ mệnh */
+        #mission-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: opacity 0.5s ease;
+        }
+
+        #mission-overlay h1 { font-size: 2rem; color: #58D68D; margin-bottom: 20px; }
+        #mission-overlay p { max-width: 700px; line-height: 1.6; font-size: 1.1rem; margin: 10px 0; }
+        #mission-overlay button {
+            margin-top: 30px; padding: 12px 30px;
+            background: #4A90E2; color: white; border: none;
+            border-radius: 25px; cursor: pointer; font-weight: bold;
+        }
+
+        /* Lưới chính */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            height: 100vh;
-            width: 100vw;
-            gap: 12px;
-            padding: 12px;
-            box-sizing: border-box;
+            height: 100vh; width: 100vw;
+            gap: 12px; padding: 12px; box-sizing: border-box;
         }
 
         .grid-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 15px;
-            position: relative;
-            transition: var(--transition);
-            box-shadow: var(--shadow);
-            color: white;
-            padding: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            text-align: center; cursor: pointer; border-radius: 15px;
+            transition: var(--transition); box-shadow: var(--shadow);
+            color: white; padding: 15px; border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .grid-item:hover {
-            transform: scale(1.02);
-            filter: brightness(1.1);
-            z-index: 5;
-        }
+        .grid-item:hover { transform: scale(1.02); filter: brightness(1.1); }
 
         .task-text {
-            background: transparent;
-            border: none;
-            color: white;
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-align: center;
-            width: 100%;
-            outline: none;
-            word-wrap: break-word;
-            line-height: 1.4;
+            background: transparent; border: none; color: white;
+            font-weight: 600; font-size: 1.1rem; text-align: center;
+            width: 100%; outline: none; word-wrap: break-word;
         }
 
         #back-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background: white;
-            color: #333;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            display: none;
-            z-index: 100;
-            font-weight: bold;
+            position: fixed; top: 20px; right: 20px;
+            padding: 10px 20px; background: white; color: #333;
+            border: none; border-radius: 25px; cursor: pointer;
+            display: none; z-index: 100; font-weight: bold;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        @media (max-width: 768px) {
-            .grid-container { gap: 8px; padding: 8px; }
-            .task-text { font-size: 0.85rem; }
         }
     </style>
 </head>
 <body>
+
+    <div id="mission-overlay">
+        <h1>BẢN ĐỒ TÂM TRÍ</h1>
+        <p><strong>Nhận diện (Awareness):</strong> Nhận ra những mảng đang trống trải để tự điều chỉnh.</p>
+        <p><strong>Cân bằng (Equilibrium):</strong> Giữ các khía cạnh cuộc sống không bị lệch về một phía.</p>
+        <p><strong>Tập trung (Focus):</strong> Cách ly khỏi phiền nhiễu để dồn lực hoàn thành mục tiêu.</p>
+        <button onclick="closeMission()">Bắt đầu Quản trị</button>
+    </div>
 
     <button id="back-btn" onclick="resetGrid()">← Tổng quan</button>
     <div class="grid-container" id="mainGrid"></div>
@@ -105,6 +104,13 @@
             { title: "DỰ ÁN RIÊNG", tasks: ["Nghiên cứu thị trường", "Lập lộ trình cụ thể", "Xây dựng nền tảng", "Thử nghiệm (MVP)", "Quản lý vốn", "Kế hoạch Marketing", "Tìm kiếm đối tác", "Kỷ luật 1 giờ/ngày", "Đo lường tiến độ"] },
             { title: "ƯỚC MƠ", tasks: ["Ghi lòng biết ơn", "Xác định mục đích", "Lập Vision Board", "Vượt qua nỗi sợ", "Tìm sự bình an", "Chia sẻ & Cho đi", "Học cách tha thứ", "Đọc triết học", "Cam kết bản thân"] }
         ];
+
+        function closeMission() {
+            document.getElementById('mission-overlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('mission-overlay').style.display = 'none';
+            }, 500);
+        }
 
         const mainGrid = document.getElementById('mainGrid');
         const backBtn = document.getElementById('back-btn');
